@@ -77,11 +77,15 @@ fun AppNavHost(
         }
     }
 
-    // Kiosk idle screensaver: after 5 s with no touch, show the Offer attract loop.
+    // Kiosk mode: open the Offer attract loop immediately when it turns on, and re-open it after
+    // 5 s of inactivity once the user taps back to POS.
     LaunchedEffect(kioskActive) {
         if (!kioskActive) {
             if (nav.currentDestination?.route == Routes.OFFER) nav.popBackStack()
             return@LaunchedEffect
+        }
+        if (nav.currentDestination?.route == Routes.POS) {
+            nav.navigate(Routes.OFFER) { launchSingleTop = true }
         }
         lastInteraction = SystemClock.elapsedRealtime()
         while (true) {

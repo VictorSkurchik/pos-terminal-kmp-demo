@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -33,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import by.vsdev.posterminal.demo.core.ui.components.StoryProgressBar
 import coil3.compose.AsyncImage
 
-/** One promotional slide. Real images are user-provided; [emoji] is the large placeholder. */
+/** One promotional slide. Real images are user-provided; [emoji] is the placeholder motif. */
 data class OfferItem(
     val title: String,
     val subtitle: String,
@@ -49,10 +51,20 @@ val sampleOffers = listOf(
 
 private const val SLIDE_MILLIS = 5000
 
+// Scattered decorative motif: (xFraction, yFraction, sizeSp) — small emojis of varied sizes.
+private val scatter = listOf(
+    Triple(0.06f, 0.08f, 40), Triple(0.34f, 0.05f, 30), Triple(0.60f, 0.10f, 52),
+    Triple(0.84f, 0.07f, 34), Triple(0.16f, 0.24f, 60), Triple(0.46f, 0.20f, 30),
+    Triple(0.74f, 0.26f, 44), Triple(0.90f, 0.22f, 28), Triple(0.08f, 0.44f, 48),
+    Triple(0.40f, 0.42f, 34), Triple(0.66f, 0.46f, 56), Triple(0.88f, 0.42f, 30),
+    Triple(0.20f, 0.60f, 38), Triple(0.52f, 0.64f, 30), Triple(0.80f, 0.66f, 46),
+    Triple(0.30f, 0.80f, 34),
+)
+
 /**
  * Full-screen attract loop shown while the terminal is idle in kiosk mode. [offers] rotate every
- * 5 s with Instagram-stories progress bars on top; a large image/emoji peeks in from a different
- * edge each slide. Any tap calls [onExit].
+ * 5 s with Instagram-stories progress bars on top; the slide's emoji is scattered as small
+ * varied-size motifs. Any tap calls [onExit].
  */
 @Composable
 fun OfferScreen(
@@ -77,29 +89,53 @@ fun OfferScreen(
         MaterialTheme.colorScheme.secondaryContainer,
         MaterialTheme.colorScheme.tertiaryContainer,
     )
-    val onColor = Color.Black.copy(alpha = 0.82f)
+    val onColor = Color.Black.copy(alpha = 0.85f)
 
-    Box(
+    BoxWithConstraints(
         modifier
             .fillMaxSize()
             .background(palette[index % palette.size])
             .pointerInput(Unit) { detectTapGestures { onExit() } },
     ) {
-        OfferArt(offer, index)
+        val w = maxWidth
+        val h = maxHeight
 
-        Column(Modifier.align(Alignment.BottomStart).padding(32.dp)) {
+        if (offer.imageUrl != null) {
+            AsyncImage(
+                model = offer.imageUrl,
+                contentDescription = offer.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            scatter.forEach { (fx, fy, size) ->
+                Text(
+                    text = offer.emoji,
+                    fontSize = size.sp,
+                    modifier = Modifier
+                        .offset(x = w * fx, y = h * fy)
+                        .alpha(0.85f),
+                )
+            }
+        }
+
+        Column(
+            Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 32.dp, end = 32.dp, bottom = 120.dp),
+        ) {
             Text(
                 offer.title,
-                fontSize = 46.sp,
+                fontSize = 60.sp,
                 fontWeight = FontWeight.Bold,
                 color = onColor,
-                lineHeight = 50.sp,
+                lineHeight = 64.sp,
             )
             Text(
                 offer.subtitle,
-                fontSize = 24.sp,
+                fontSize = 28.sp,
                 color = onColor.copy(alpha = 0.75f),
-                modifier = Modifier.padding(top = 6.dp),
+                modifier = Modifier.padding(top = 8.dp),
             )
         }
 
@@ -129,28 +165,5 @@ fun OfferScreen(
             color = onColor.copy(alpha = 0.5f),
             modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp),
         )
-    }
-}
-
-/** A large (~half-screen) image/emoji that peeks in from a different edge each slide. */
-@Composable
-private fun androidx.compose.foundation.layout.BoxScope.OfferArt(offer: OfferItem, index: Int) {
-    // Alignment + outward offset so roughly half of the art sits off-screen; the edge rotates.
-    val (alignment, dx, dy) = when (index % 4) {
-        0 -> Triple(Alignment.CenterEnd, 130.dp, 0.dp)      // from the right
-        1 -> Triple(Alignment.CenterStart, (-130).dp, 0.dp) // from the left
-        2 -> Triple(Alignment.TopCenter, 0.dp, (-120).dp)   // from the top
-        else -> Triple(Alignment.BottomCenter, 0.dp, 120.dp) // from the bottom
-    }
-    val art = Modifier.align(alignment).offset(x = dx, y = dy)
-    if (offer.imageUrl != null) {
-        AsyncImage(
-            model = offer.imageUrl,
-            contentDescription = offer.title,
-            contentScale = ContentScale.Fit,
-            modifier = art.fillMaxSize(0.7f),
-        )
-    } else {
-        Text(offer.emoji, fontSize = 280.sp, modifier = art)
     }
 }
