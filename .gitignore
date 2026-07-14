@@ -18,6 +18,10 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
 
+# Release build outputs (APK/AAB) — never commit binaries
+**/release/*.aab
+**/release/*.apk
+
 # Ktor server SQLite (Room BundledSQLiteDriver) runtime files
 pos.db
 pos.db-shm

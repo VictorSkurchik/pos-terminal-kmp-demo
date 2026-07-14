@@ -54,6 +54,11 @@ android {
             isMinifyEnabled = false
         }
     }
+    lint {
+        // False positive: MainActivity extends androidx ComponentActivity (→ android.app.Activity),
+        // but lint can't always resolve that hierarchy through the Compose Multiplatform artifacts.
+        disable += "Instantiatable"
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
