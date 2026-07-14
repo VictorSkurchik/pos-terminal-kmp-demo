@@ -26,6 +26,3 @@ pos.db.lck
 
 # run.sh logs
 .run-logs/
-
-# local design notes, not tracked
-PROJECT_PLAN.md
