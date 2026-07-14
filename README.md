@@ -14,6 +14,16 @@ Compose with a Material3 **atomic-design** component library, multi-module archi
 Compose, Ktor, Room (KMP), Koin, WorkManager, a foreground service, and Android Enterprise APIs
 (`DevicePolicyManager`, screen pinning).
 
+## Screenshots
+
+| Registration | POS | Settings | Offer (kiosk) |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/initial.jpg" width="200"> | <img src="docs/screenshots/pos.jpg" width="200"> | <img src="docs/screenshots/settings.jpg" width="200"> | <img src="docs/screenshots/offer.png" width="200"> |
+
+Web admin console:
+
+<img src="docs/screenshots/admin-panel.png" width="760">
+
 ## What it does
 
 - **POS** (Android, Compose): branded menu grid (2 columns, image/emoji cards) → cart → "payment" stub.
