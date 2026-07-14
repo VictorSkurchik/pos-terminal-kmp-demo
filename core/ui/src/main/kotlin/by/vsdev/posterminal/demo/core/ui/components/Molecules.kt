@@ -9,9 +9,13 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,12 +54,8 @@ fun ProductCard(product: Product, onAdd: () -> Unit, modifier: Modifier = Modifi
                     modifier = Modifier.fillMaxSize(),
                 )
             } else {
-                // Placeholder until real images are added.
-                Text(
-                    text = product.name.take(1).uppercase(),
-                    style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                // Emoji placeholder until real images are added.
+                Text(text = foodEmoji(product.name), fontSize = 56.sp)
             }
         }
         Column(Modifier.padding(12.dp)) {
@@ -85,12 +85,15 @@ fun CartLine(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = modifier.fillMaxWidth().padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(item.name, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
         QuantityStepper(item.quantity, onDecrement, onIncrement)
-        PriceText(item.lineTotalCents, modifier = Modifier.padding(start = 12.dp))
+        // Fixed-width, end-aligned price so a longer total never shifts the +/- buttons.
+        Box(Modifier.width(88.dp).padding(start = 8.dp), contentAlignment = Alignment.CenterEnd) {
+            PriceText(item.lineTotalCents)
+        }
     }
 }
 
@@ -100,7 +103,9 @@ fun PosTopBar(title: String, onSettingsClick: () -> Unit, modifier: Modifier = M
     TopAppBar(
         title = { Text(title, fontWeight = FontWeight.Bold) },
         actions = {
-            IconButton(onClick = onSettingsClick) { Text("⚙", fontSize = 20.sp) }
+            IconButton(onClick = onSettingsClick) {
+                Icon(Icons.Filled.Settings, contentDescription = "Settings")
+            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -145,4 +150,24 @@ fun ConfirmDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(dismissLabel) } },
     )
+}
+
+/** Emoji stand-in for a product image, chosen from keywords in the name. */
+fun foodEmoji(name: String): String {
+    val n = name.lowercase()
+    return when {
+        "espresso" in n || "latte" in n || "cappuccino" in n || "coffee" in n -> "☕"
+        "tea" in n -> "🍵"
+        "croissant" in n -> "🥐"
+        "muffin" in n || "cake" in n || "dessert" in n -> "🧁"
+        "cookie" in n -> "🍪"
+        "water" in n -> "💧"
+        "juice" in n || "soda" in n || "drink" in n -> "🥤"
+        "sandwich" in n -> "🥪"
+        "burger" in n -> "🍔"
+        "pizza" in n -> "🍕"
+        "salad" in n -> "🥗"
+        "fries" in n -> "🍟"
+        else -> "🍽"
+    }
 }

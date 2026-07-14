@@ -30,6 +30,7 @@ dependencies {
     api(libs.compose.runtime)
     api(libs.compose.foundation)
     api(libs.compose.material3)
+    api(libs.compose.materialIconsCore)
     api(libs.compose.ui)
     api(libs.androidx.lifecycle.runtimeCompose)
 

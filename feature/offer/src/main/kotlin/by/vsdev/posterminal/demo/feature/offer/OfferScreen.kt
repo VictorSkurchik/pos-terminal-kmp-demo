@@ -8,10 +8,11 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,27 +29,30 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import by.vsdev.posterminal.demo.core.ui.components.StoryProgressBar
 import coil3.compose.AsyncImage
 
-/** One promotional slide. Images are user-provided; null shows a colored placeholder. */
+/** One promotional slide. Real images are user-provided; [emoji] is the large placeholder. */
 data class OfferItem(
     val title: String,
     val subtitle: String,
+    val emoji: String,
     val imageUrl: String? = null,
 )
 
 val sampleOffers = listOf(
-    OfferItem("2-for-1 Burgers", "Every weekday, 4–6 PM"),
-    OfferItem("Free Dessert", "With any main course"),
-    OfferItem("Happy Hour", "20% off all drinks til 7 PM"),
+    OfferItem("2-for-1 Burgers", "Every weekday, 4–6 PM", "🍔"),
+    OfferItem("Free Dessert", "With any main course", "🍰"),
+    OfferItem("Happy Hour", "20% off all drinks til 7 PM", "🍹"),
 )
 
 private const val SLIDE_MILLIS = 5000
 
 /**
  * Full-screen attract loop shown while the terminal is idle in kiosk mode. [offers] rotate every
- * 5 s with Instagram-stories progress bars on top. Any tap calls [onExit] (back to POS).
+ * 5 s with Instagram-stories progress bars on top; a large image/emoji peeks in from a different
+ * edge each slide. Any tap calls [onExit].
  */
 @Composable
 fun OfferScreen(
@@ -69,10 +73,11 @@ fun OfferScreen(
 
     val offer = offers[index]
     val palette = listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.secondary,
-        MaterialTheme.colorScheme.tertiary,
+        MaterialTheme.colorScheme.primaryContainer,
+        MaterialTheme.colorScheme.secondaryContainer,
+        MaterialTheme.colorScheme.tertiaryContainer,
     )
+    val onColor = Color.Black.copy(alpha = 0.82f)
 
     Box(
         modifier
@@ -80,26 +85,21 @@ fun OfferScreen(
             .background(palette[index % palette.size])
             .pointerInput(Unit) { detectTapGestures { onExit() } },
     ) {
-        offer.imageUrl?.let {
-            AsyncImage(
-                model = it,
-                contentDescription = offer.title,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
-        }
+        OfferArt(offer, index)
 
-        Column(Modifier.align(Alignment.BottomStart).padding(28.dp)) {
+        Column(Modifier.align(Alignment.BottomStart).padding(32.dp)) {
             Text(
                 offer.title,
-                style = MaterialTheme.typography.displaySmall,
-                color = Color.White,
+                fontSize = 46.sp,
                 fontWeight = FontWeight.Bold,
+                color = onColor,
+                lineHeight = 50.sp,
             )
             Text(
                 offer.subtitle,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White.copy(alpha = 0.9f),
+                fontSize = 24.sp,
+                color = onColor.copy(alpha = 0.75f),
+                modifier = Modifier.padding(top = 6.dp),
             )
         }
 
@@ -125,9 +125,32 @@ fun OfferScreen(
 
         Text(
             "tap to exit",
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.White.copy(alpha = 0.7f),
-            modifier = Modifier.align(Alignment.BottomCenter).padding(20.dp),
+            fontSize = 13.sp,
+            color = onColor.copy(alpha = 0.5f),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp),
         )
+    }
+}
+
+/** A large (~half-screen) image/emoji that peeks in from a different edge each slide. */
+@Composable
+private fun androidx.compose.foundation.layout.BoxScope.OfferArt(offer: OfferItem, index: Int) {
+    // Alignment + outward offset so roughly half of the art sits off-screen; the edge rotates.
+    val (alignment, dx, dy) = when (index % 4) {
+        0 -> Triple(Alignment.CenterEnd, 130.dp, 0.dp)      // from the right
+        1 -> Triple(Alignment.CenterStart, (-130).dp, 0.dp) // from the left
+        2 -> Triple(Alignment.TopCenter, 0.dp, (-120).dp)   // from the top
+        else -> Triple(Alignment.BottomCenter, 0.dp, 120.dp) // from the bottom
+    }
+    val art = Modifier.align(alignment).offset(x = dx, y = dy)
+    if (offer.imageUrl != null) {
+        AsyncImage(
+            model = offer.imageUrl,
+            contentDescription = offer.title,
+            contentScale = ContentScale.Fit,
+            modifier = art.fillMaxSize(0.7f),
+        )
+    } else {
+        Text(offer.emoji, fontSize = 280.sp, modifier = art)
     }
 }

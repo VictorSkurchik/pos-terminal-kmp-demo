@@ -5,15 +5,17 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -51,14 +53,18 @@ fun SettingsScreen(
     val adminLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         adminActive = isAdminActive(context)
     }
-    var confirmLogout by remember { mutableStateOf(false) }
+    var confirmReset by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text("Settings") },
-                navigationIcon = { IconButton(onClick = onBack) { Text("←") } },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
             )
         },
     ) { padding ->
@@ -66,9 +72,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
@@ -81,6 +85,7 @@ fun SettingsScreen(
                 }
             }
 
+            Spacer(Modifier.height(12.dp))
             AppButton(
                 text = if (adminActive) "Device Admin enabled" else "Enable Device Admin",
                 onClick = { adminLauncher.launch(addAdminIntent(context)) },
@@ -88,35 +93,42 @@ fun SettingsScreen(
                 enabled = !adminActive,
                 modifier = Modifier.fillMaxWidth(),
             )
+            Spacer(Modifier.height(8.dp))
             AppButton(
                 text = "Sync now",
                 onClick = viewModel::syncNow,
                 variant = AppButtonVariant.Tonal,
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            state.status?.let {
+                Spacer(Modifier.height(12.dp))
+                Text(it, style = MaterialTheme.typography.bodyMedium)
+            }
+
+            // Factory reset pinned to the bottom of the screen.
+            Spacer(Modifier.weight(1f))
             AppButton(
-                text = "Logout",
-                onClick = { confirmLogout = true },
+                text = "Factory reset",
+                onClick = { confirmReset = true },
                 variant = AppButtonVariant.Danger,
                 enabled = !state.busy,
                 modifier = Modifier.fillMaxWidth(),
             )
-
-            state.status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
         }
     }
 
-    if (confirmLogout) {
+    if (confirmReset) {
         ConfirmDialog(
-            title = "Log out this terminal?",
+            title = "Factory reset this terminal?",
             text = "It will be removed from the admin console and reset to the registration screen.",
-            confirmLabel = "Log out",
+            confirmLabel = "Factory reset",
             danger = true,
             onConfirm = {
-                confirmLogout = false
+                confirmReset = false
                 viewModel.logout()
             },
-            onDismiss = { confirmLogout = false },
+            onDismiss = { confirmReset = false },
         )
     }
 }
