@@ -16,8 +16,10 @@ screen pinning).
 ## What it does
 
 - **POS**: product catalog → cart → "payment" stub (Android, Compose).
-- **MDM agent**: the device registers with the backend, sends heartbeats, polls a command queue
-  (WorkManager) and executes commands.
+- **MDM agent**: the device registers with the backend and runs an always-on **foreground service**
+  that heartbeats, polls the command queue and surfaces commands (snackbar in-app, notification when
+  backgrounded) — so it keeps receiving even when the app isn't on screen. WorkManager is the periodic
+  background fallback.
 - **Backend** (Ktor + Room/SQLite): stores devices and the command queue, exposes a REST API.
 - **Web admin** (React + TypeScript, Vite): device list + command buttons + QR generator.
 
@@ -34,8 +36,8 @@ HTTP client. The web admin is a small separate TS app that mirrors the handful o
 :core:data       Android library — Room(AndroidSQLiteDriver) local DB, DataStore prefs,
                  repositories over PosApiClient, Koin dataModule.
 :feature:pos     Android feature — catalog/cart/payment, PosViewModel (MVVM), disabled on RESTRICT_APP.
-:feature:mdm     Android feature — DeviceAdminReceiver, CommandExecutor, MdmSyncWorker (WorkManager),
-                 enrollment screen + QR scanner (CameraX + ML Kit).
+:feature:mdm     Android feature — MdmAgentService (always-on foreground service), DeviceAdminReceiver,
+                 CommandExecutor, MdmSyncWorker (WorkManager), enrollment + QR scanner (CameraX + ML Kit).
 :app:androidApp  Android app — Koin init, MainActivity + navigation, Device Admin, WorkManager.
 web-admin/       React + TypeScript (Vite) — admin console. Not KMP; mirrors :core DTOs in TS.
 ```

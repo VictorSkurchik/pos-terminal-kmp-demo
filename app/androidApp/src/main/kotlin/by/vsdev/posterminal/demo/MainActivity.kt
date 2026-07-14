@@ -1,9 +1,13 @@
 package by.vsdev.posterminal.demo
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,22 +27,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
-import by.vsdev.posterminal.demo.feature.mdm.CommandFeedViewModel
+import by.vsdev.posterminal.demo.feature.mdm.MdmAgentService
 import by.vsdev.posterminal.demo.feature.mdm.MdmController
 import by.vsdev.posterminal.demo.feature.mdm.MdmMessageHost
 import by.vsdev.posterminal.demo.feature.mdm.enrollment.EnrollmentScreen
 import by.vsdev.posterminal.demo.feature.pos.PosScreen
 import org.koin.android.ext.android.inject
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 class MainActivity : ComponentActivity() {
 
     private val mdmController: MdmController by inject()
 
+    private val notificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        // Notifications are how the always-on agent surfaces commands when the app is backgrounded.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        MdmAgentService.start(this)
+
         setContent {
             PosTheme {
                 AppRoot()
@@ -59,14 +77,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun AppRoot(feed: CommandFeedViewModel = koinViewModel()) {
+private fun AppRoot(controller: MdmController = koinInject()) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Live command feed: poll while the app is on screen, show each command as a snackbar.
-    LaunchedEffect(Unit) { feed.poll() }
+    // Command events come from the foreground service; show them as snackbars while on screen.
     LaunchedEffect(Unit) {
-        feed.snackbar.collect { snackbarHostState.showSnackbar(it) }
+        controller.events.collect { snackbarHostState.showSnackbar(it) }
     }
 
     Scaffold(
