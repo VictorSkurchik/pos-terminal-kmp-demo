@@ -38,7 +38,12 @@ class DeviceRepository(db: AppDatabase) {
         val updated = existing.copy(
             lastSeenAt = request.timestamp,
             batteryLevel = request.batteryLevel ?: existing.batteryLevel,
-            status = DeviceStatus.ONLINE.name,
+            status = when (request.kioskActive) {
+                true -> DeviceStatus.KIOSK.name
+                else -> DeviceStatus.ONLINE.name
+            },
+            kioskActive = request.kioskActive ?: existing.kioskActive,
+            restrictPayment = request.restrictPayment ?: existing.restrictPayment,
         )
         devices.upsert(updated)
         return updated.toModel()
@@ -91,6 +96,8 @@ private fun DeviceEntity.toModel() = Device(
     status = DeviceStatus.valueOf(status),
     batteryLevel = batteryLevel,
     enrollmentToken = enrollmentToken,
+    kioskActive = kioskActive,
+    restrictPayment = restrictPayment,
 )
 
 private fun CommandEntity.toModel() = DeviceCommand(

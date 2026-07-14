@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   SERVER_URL,
-  deleteDevice,
   listDevices,
   postCommand,
   type CommandType,
@@ -54,10 +53,8 @@ export default function App() {
   };
 
   const confirmWipe = (device: Device) => {
-    deleteDevice(device.id)
-      .then(() => setDevices((prev) => prev.filter((d) => d.id !== device.id)))
-      .catch((e) => setError(e instanceof Error ? e.message : "request failed"))
-      .finally(() => setWipeTarget(null));
+    send(device.id, "WIPE");
+    setWipeTarget(null);
   };
 
   const qrPayload = JSON.stringify({ token, serverUrl: SERVER_URL });
@@ -73,7 +70,7 @@ export default function App() {
         <div>
           <h2>QR enrollment</h2>
           <p className="muted">token: {token}</p>
-          <p className="muted">Scan in the app: Manage → Scan QR</p>
+          <p className="muted">Scan in the app: Settings → Scan QR</p>
           <button onClick={() => setToken(newToken())}>New token</button>
         </div>
       </section>
@@ -90,26 +87,51 @@ export default function App() {
           <section className="card" key={d.id}>
             <b>{d.name}</b>
             <p className="muted">
-              id={d.id} · {d.status} · battery={d.batteryLevel ?? "?"}% · seen{" "}
-              {ago(d.lastSeenAt)}
+              id={d.id} · battery={d.batteryLevel ?? "?"}% · seen {ago(d.lastSeenAt)}
               {d.enrollmentToken ? ` · QR token=${d.enrollmentToken}` : ""}
             </p>
-            <div className="buttons">
-              <button onClick={() => send(d.id, "LOCK")}>Lock</button>
-              <button onClick={() => send(d.id, "KIOSK_ON")}>Kiosk On</button>
-              <button onClick={() => send(d.id, "KIOSK_OFF")}>Kiosk Off</button>
-              <button onClick={() => send(d.id, "SHOW_MESSAGE", message)}>
-                Message
-              </button>
-              <button onClick={() => send(d.id, "RESTRICT_APP", "on")}>
-                Restrict payment
-              </button>
-              <button onClick={() => send(d.id, "RESTRICT_APP", "off")}>
-                Allow payment
-              </button>
-              <button className="danger" onClick={() => setWipeTarget(d)}>
-                Wipe
-              </button>
+
+            <div className="badges">
+              <span className={"badge " + (d.status === "ONLINE" || d.status === "KIOSK" ? "on" : "")}>
+                {d.status}
+              </span>
+              <span className={"badge " + (d.kioskActive ? "on" : "")}>
+                Kiosk: {d.kioskActive ? "on" : "off"}
+              </span>
+              <span className={"badge " + (d.restrictPayment ? "warn" : "")}>
+                Payment: {d.restrictPayment ? "restricted" : "allowed"}
+              </span>
+            </div>
+
+            <div className="group">
+              <span className="glabel">Screen</span>
+              <div className="buttons">
+                <button onClick={() => send(d.id, "LOCK")}>Lock</button>
+                <button onClick={() => send(d.id, "KIOSK_ON")}>Kiosk On</button>
+                <button onClick={() => send(d.id, "KIOSK_OFF")}>Kiosk Off</button>
+              </div>
+            </div>
+
+            <div className="group">
+              <span className="glabel">Message</span>
+              <div className="buttons">
+                <button onClick={() => send(d.id, "SHOW_MESSAGE", message)}>Send message</button>
+              </div>
+            </div>
+
+            <div className="group">
+              <span className="glabel">Payment</span>
+              <div className="buttons">
+                <button onClick={() => send(d.id, "RESTRICT_APP", "on")}>Restrict payment</button>
+                <button onClick={() => send(d.id, "RESTRICT_APP", "off")}>Allow payment</button>
+              </div>
+            </div>
+
+            <div className="group">
+              <span className="glabel">Danger zone</span>
+              <div className="buttons">
+                <button className="danger" onClick={() => setWipeTarget(d)}>Wipe</button>
+              </div>
             </div>
           </section>
         ))
@@ -120,8 +142,8 @@ export default function App() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Wipe device?</h2>
             <p className="muted">
-              “{wipeTarget.name}” ({wipeTarget.id}) will be removed from the console. The terminal
-              detects this and resets to the registration screen.
+              A WIPE command is sent to “{wipeTarget.name}” ({wipeTarget.id}). The terminal resets to
+              the registration screen and removes itself from the console.
             </p>
             <div className="buttons">
               <button onClick={() => setWipeTarget(null)}>Cancel</button>

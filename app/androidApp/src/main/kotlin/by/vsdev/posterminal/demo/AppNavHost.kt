@@ -41,7 +41,7 @@ object Routes {
     const val OFFER = "offer"
 }
 
-private const val KIOSK_IDLE_MILLIS = 5_000L
+private const val KIOSK_IDLE_MILLIS = 10_000L
 
 @Composable
 fun AppNavHost(
@@ -77,15 +77,11 @@ fun AppNavHost(
         }
     }
 
-    // Kiosk mode: open the Offer attract loop immediately when it turns on, and re-open it after
-    // 5 s of inactivity once the user taps back to POS.
+    // Kiosk screensaver: while kiosk is on, show the Offer attract loop after 10 s of inactivity.
     LaunchedEffect(kioskActive) {
         if (!kioskActive) {
             if (nav.currentDestination?.route == Routes.OFFER) nav.popBackStack()
             return@LaunchedEffect
-        }
-        if (nav.currentDestination?.route == Routes.POS) {
-            nav.navigate(Routes.OFFER) { launchSingleTop = true }
         }
         lastInteraction = SystemClock.elapsedRealtime()
         while (true) {

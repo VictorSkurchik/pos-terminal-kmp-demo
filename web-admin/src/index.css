@@ -105,3 +105,24 @@ button.danger { background: var(--danger); }
   max-width: 420px;
 }
 .modal h2 { margin: 0 0 8px; }
+
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+.badge {
+  font-size: 0.72rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.badge.on { background: rgba(26, 157, 95, 0.14); color: #1a9d5f; border-color: rgba(26, 157, 95, 0.4); }
+.badge.warn { background: rgba(196, 106, 26, 0.14); color: #c46a1a; border-color: rgba(196, 106, 26, 0.4); }
+
+.group { margin-top: 10px; }
+.glabel {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}

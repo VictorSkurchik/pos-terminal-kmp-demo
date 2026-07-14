@@ -23,11 +23,13 @@ class SettingsRepository(private val context: Context) {
         val ENROLLED = booleanPreferencesKey("enrolled")
         val SERVER_URL = stringPreferencesKey("server_url")
         val RESTRICT_APP = booleanPreferencesKey("restrict_app")
+        val KIOSK = booleanPreferencesKey("kiosk_active")
     }
 
     val enrolled: Flow<Boolean> = context.dataStore.data.map { it[Keys.ENROLLED] ?: false }
     val deviceName: Flow<String> = context.dataStore.data.map { it[Keys.DEVICE_NAME] ?: "POS Terminal" }
     val restrictApp: Flow<Boolean> = context.dataStore.data.map { it[Keys.RESTRICT_APP] ?: false }
+    val kioskActive: Flow<Boolean> = context.dataStore.data.map { it[Keys.KIOSK] ?: false }
 
     /** Returns the existing deviceId or generates and stores a new one. */
     suspend fun getOrCreateDeviceId(): String {
@@ -50,6 +52,10 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setRestrictApp(value: Boolean) {
         context.dataStore.edit { it[Keys.RESTRICT_APP] = value }
+    }
+
+    suspend fun setKiosk(value: Boolean) {
+        context.dataStore.edit { it[Keys.KIOSK] = value }
     }
 
     suspend fun setDeviceName(name: String) {

@@ -3,19 +3,21 @@ package by.vsdev.posterminal.demo.feature.mdm
 import android.app.admin.DevicePolicyManager
 import android.content.Context
 import by.vsdev.posterminal.demo.core.data.prefs.SettingsRepository
+import by.vsdev.posterminal.demo.core.data.repo.RemoteRepository
 import by.vsdev.posterminal.demo.feature.mdm.admin.PosDeviceAdminReceiver
 import by.vsdev.posterminal.demo.model.CommandType
 import by.vsdev.posterminal.demo.model.DeviceCommand
 
 /**
  * Executor of remote MDM commands. LOCK and KIOSK use real Android APIs; SHOW_MESSAGE and
- * RESTRICT_APP affect only the POS app. (WIPE is no longer a command — the admin deletes the
- * device via DELETE /devices/{id}, and the agent un-enrolls on the resulting 404.)
+ * RESTRICT_APP affect only the POS app. Kiosk/restrict state is persisted so it can be reported
+ * to the admin via heartbeat. WIPE is the admin-initiated reset (delete + un-enroll).
  */
 class CommandExecutor(
     private val context: Context,
     private val settings: SettingsRepository,
     private val controller: MdmController,
+    private val remote: RemoteRepository,
 ) {
     private val dpm: DevicePolicyManager
         get() = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
@@ -33,10 +35,16 @@ class CommandExecutor(
                 true
             }
 
-            // Real screen pinning. KIOSK_ON also arms the idle screensaver (see AppNavHost, which
-            // observes MdmController.kioskActive and navigates to the Offer screen after 5s idle).
-            CommandType.KIOSK_ON -> { controller.startKiosk(); true }
-            CommandType.KIOSK_OFF -> { controller.stopKiosk(); true }
+            CommandType.KIOSK_ON -> {
+                settings.setKiosk(true)
+                controller.startKiosk()
+                true
+            }
+            CommandType.KIOSK_OFF -> {
+                settings.setKiosk(false)
+                controller.stopKiosk()
+                true
+            }
 
             CommandType.SHOW_MESSAGE -> {
                 controller.showMessage(command.payload ?: "Message from admin")
@@ -47,6 +55,13 @@ class CommandExecutor(
             CommandType.RESTRICT_APP -> {
                 val restrict = !command.payload.equals("off", ignoreCase = true)
                 settings.setRestrictApp(restrict)
+                true
+            }
+
+            // Admin reset: delete this device from the backend and clear local enrollment →
+            // the app returns to Registration.
+            CommandType.WIPE -> {
+                remote.logout()
                 true
             }
         }

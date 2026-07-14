@@ -30,35 +30,49 @@ class RemoteRepository(
 
     suspend fun heartbeat(batteryLevel: Int?): Device {
         val id = settings.getOrCreateDeviceId()
-        return unenrollOn404 {
-            api.heartbeat(id, HeartbeatRequest(timestamp = System.currentTimeMillis(), batteryLevel = batteryLevel))
+        val kiosk = settings.kioskActive.first()
+        val restrict = settings.restrictApp.first()
+        return selfHealOn404 {
+            api.heartbeat(
+                id,
+                HeartbeatRequest(
+                    timestamp = System.currentTimeMillis(),
+                    batteryLevel = batteryLevel,
+                    kioskActive = kiosk,
+                    restrictPayment = restrict,
+                ),
+            )
         }
     }
 
     suspend fun fetchCommands(): List<DeviceCommand> {
         val id = settings.getOrCreateDeviceId()
-        return unenrollOn404 { api.getCommands(id) }
+        return selfHealOn404 { api.getCommands(id) }
     }
 
     suspend fun ack(commandId: String) {
         val id = settings.getOrCreateDeviceId()
-        unenrollOn404 { api.ackCommand(id, commandId, AckRequest()) }
+        runCatching { api.ackCommand(id, commandId, AckRequest()) }
     }
 
-    /** Logout: delete this device from the backend, then clear local enrollment. */
+    /** Intentional reset (Factory reset / WIPE command): delete from backend + clear local state. */
     suspend fun logout() {
         val id = settings.getOrCreateDeviceId()
         runCatching { api.deleteDevice(id) }
         settings.clearEnrollment()
     }
 
-    /** Runs [block]; if the backend reports the device is gone (404), un-enroll locally. */
-    private suspend fun <T> unenrollOn404(block: suspend () -> T): T {
-        try {
-            return block()
+    /**
+     * If the backend reports the device is gone (404) — e.g. the free-tier DB was reset when the
+     * instance spun down — re-create this device on the backend and retry once, instead of logging
+     * the terminal out. Intentional removal is handled by [logout] / the WIPE command.
+     */
+    private suspend fun <T> selfHealOn404(block: suspend () -> T): T {
+        return try {
+            block()
         } catch (e: DeviceNotFoundException) {
-            settings.clearEnrollment()
-            throw e
+            registerThisDevice()
+            block()
         }
     }
 }

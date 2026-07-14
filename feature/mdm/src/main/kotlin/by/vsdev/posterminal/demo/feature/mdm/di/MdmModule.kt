@@ -14,7 +14,7 @@ import org.koin.dsl.module
 val mdmModule: Module = module {
     single { MdmController() }
     single { MdmScheduler(androidContext()) }
-    factory { CommandExecutor(androidContext(), get(), get()) }
+    factory { CommandExecutor(androidContext(), get(), get(), get()) }
     viewModel { EnrollmentViewModel(get(), get(), get(), get()) }
     worker { MdmSyncWorker(get(), get(), get(), get(), get()) }
 }

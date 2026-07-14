@@ -17,6 +17,8 @@ data class RegisterRequest(
 data class HeartbeatRequest(
     val timestamp: Long,
     val batteryLevel: Int? = null,
+    val kioskActive: Boolean? = null,
+    val restrictPayment: Boolean? = null,
 )
 
 /** Enqueue a new command (from the admin console). */

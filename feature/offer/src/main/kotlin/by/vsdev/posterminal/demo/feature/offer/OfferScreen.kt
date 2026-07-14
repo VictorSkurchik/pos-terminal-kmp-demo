@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -119,24 +121,28 @@ fun OfferScreen(
             }
         }
 
-        Column(
-            Modifier
+        Surface(
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+            shape = RoundedCornerShape(22.dp),
+            modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = 32.dp, end = 32.dp, bottom = 120.dp),
+                .padding(start = 24.dp, end = 24.dp, bottom = 56.dp),
         ) {
-            Text(
-                offer.title,
-                fontSize = 60.sp,
-                fontWeight = FontWeight.Bold,
-                color = onColor,
-                lineHeight = 64.sp,
-            )
-            Text(
-                offer.subtitle,
-                fontSize = 28.sp,
-                color = onColor.copy(alpha = 0.75f),
-                modifier = Modifier.padding(top = 8.dp),
-            )
+            Column(Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
+                Text(
+                    offer.title,
+                    fontSize = 56.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = onColor,
+                    lineHeight = 60.sp,
+                )
+                Text(
+                    offer.subtitle,
+                    fontSize = 26.sp,
+                    color = onColor.copy(alpha = 0.75f),
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
         }
 
         Row(

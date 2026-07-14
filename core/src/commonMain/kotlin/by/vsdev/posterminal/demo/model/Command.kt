@@ -10,6 +10,9 @@ enum class CommandType {
     KIOSK_OFF,
     SHOW_MESSAGE,
     RESTRICT_APP,
+
+    /** Admin-initiated reset: the terminal un-enrolls, deletes itself, returns to Registration. */
+    WIPE,
 }
 
 @Serializable

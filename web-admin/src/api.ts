@@ -8,7 +8,8 @@ export type CommandType =
   | "KIOSK_ON"
   | "KIOSK_OFF"
   | "SHOW_MESSAGE"
-  | "RESTRICT_APP";
+  | "RESTRICT_APP"
+  | "WIPE";
 
 export type DeviceStatus = "ONLINE" | "OFFLINE" | "LOCKED" | "KIOSK";
 
@@ -20,6 +21,8 @@ export interface Device {
   status: DeviceStatus;
   batteryLevel: number | null;
   enrollmentToken: string | null;
+  kioskActive: boolean;
+  restrictPayment: boolean;
 }
 
 /** Payload encoded into the enrollment QR (matches EnrollmentToken in :core). */
@@ -44,11 +47,5 @@ export async function postCommand(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ type, payload }),
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-}
-
-/** Wipe = remove the device from the backend; the terminal detects the 404 and resets. */
-export async function deleteDevice(deviceId: string): Promise<void> {
-  const res = await fetch(`${SERVER_URL}/devices/${deviceId}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }

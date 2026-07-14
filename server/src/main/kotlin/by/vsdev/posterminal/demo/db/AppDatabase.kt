@@ -8,7 +8,7 @@ import java.io.File
 
 @androidx.room.Database(
     entities = [DeviceEntity::class, CommandEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
