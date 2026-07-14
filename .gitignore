@@ -1,0 +1,31 @@
+*.iml
+.kotlin
+.gradle
+**/build/
+xcuserdata
+!src/**/build/
+local.properties
+.idea
+.DS_Store
+captures
+.externalNativeBuild
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+node_modules/
+
+# Ktor server SQLite (Room BundledSQLiteDriver) runtime files
+pos.db
+pos.db-shm
+pos.db-wal
+pos.db.lck
+
+# run.sh logs
+.run-logs/
+
+# local design notes, not tracked
+PROJECT_PLAN.md

@@ -1,0 +1,4 @@
+<resources>
+    <string name="device_admin_label">POS MDM Agent</string>
+    <string name="device_admin_description">Allows remote lock of this POS terminal.</string>
+</resources>

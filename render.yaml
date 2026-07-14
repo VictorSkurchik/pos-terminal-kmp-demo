@@ -1,0 +1,11 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploys the Ktor backend as a Docker web service. Render injects $PORT and provides HTTPS.
+# Free plan: ephemeral filesystem (SQLite resets on redeploy) and cold starts after idle.
+services:
+  - type: web
+    name: pos-terminal-kmp-demo
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /devices
+    autoDeploy: true

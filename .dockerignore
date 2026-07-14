@@ -1,0 +1,13 @@
+.git
+.gradle
+.kotlin
+.idea
+.run-logs
+**/build
+node_modules
+*.iml
+local.properties
+pos.db
+pos.db-shm
+pos.db-wal
+pos.db.lck
