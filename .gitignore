@@ -26,3 +26,6 @@ pos.db.lck
 
 # run.sh logs
 .run-logs/
+
+# Vercel CLI link data (contains org/project IDs)
+.vercel/
