@@ -1,5 +1,13 @@
 # POS + MDM — Kotlin Multiplatform MVP
 
+[![CI](https://github.com/VictorSkurchik/pos-terminal-kmp-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/VictorSkurchik/pos-terminal-kmp-demo/actions/workflows/ci.yml)
+[![Web admin — Vercel](https://img.shields.io/badge/web%20admin-Vercel-000?logo=vercel)](https://pos-terminal-kmp-demo.vercel.app/)
+[![Backend — Render](https://img.shields.io/badge/backend-Render-46E3B7?logo=render&logoColor=white)](https://pos-terminal-kmp-demo.onrender.com/devices)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+
+**Live demo:** [web admin](https://pos-terminal-kmp-demo.vercel.app/) · [backend API](https://pos-terminal-kmp-demo.onrender.com/devices)
+— free tier, so the first request may cold-start (~30–60 s).
+
 Portfolio project: an Android POS terminal with a built-in **MDM agent**, plus a backend and web admin
 for remote device management. Demonstrates Kotlin Multiplatform, Jetpack Compose, a multi-module Android
 architecture, Ktor, Room (KMP), Koin, WorkManager, and Android Enterprise APIs (`DevicePolicyManager`,
