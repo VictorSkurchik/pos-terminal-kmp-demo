@@ -3,19 +3,18 @@ package by.vsdev.posterminal.demo.feature.mdm
 import android.app.admin.DevicePolicyManager
 import android.content.Context
 import by.vsdev.posterminal.demo.core.data.prefs.SettingsRepository
-import by.vsdev.posterminal.demo.core.data.repo.CartRepository
 import by.vsdev.posterminal.demo.feature.mdm.admin.PosDeviceAdminReceiver
 import by.vsdev.posterminal.demo.model.CommandType
 import by.vsdev.posterminal.demo.model.DeviceCommand
 
 /**
- * Executor of remote MDM commands. Some are backed by real Android APIs
- * (LOCK, KIOSK), some are emulated within the MVP scope (WIPE, RESTRICT_APP).
+ * Executor of remote MDM commands. LOCK and KIOSK use real Android APIs; SHOW_MESSAGE and
+ * RESTRICT_APP affect only the POS app. (WIPE is no longer a command — the admin deletes the
+ * device via DELETE /devices/{id}, and the agent un-enrolls on the resulting 404.)
  */
 class CommandExecutor(
     private val context: Context,
     private val settings: SettingsRepository,
-    private val cart: CartRepository,
     private val controller: MdmController,
 ) {
     private val dpm: DevicePolicyManager
@@ -34,20 +33,13 @@ class CommandExecutor(
                 true
             }
 
+            // Real screen pinning. KIOSK_ON also arms the idle screensaver (see AppNavHost, which
+            // observes MdmController.kioskActive and navigates to the Offer screen after 5s idle).
             CommandType.KIOSK_ON -> { controller.startKiosk(); true }
             CommandType.KIOSK_OFF -> { controller.stopKiosk(); true }
 
             CommandType.SHOW_MESSAGE -> {
                 controller.showMessage(command.payload ?: "Message from admin")
-                true
-            }
-
-            // Wipe emulation: clear local user data (cart) and reset policies.
-            // NOT a real factory reset; enrollment is preserved so the device stays manageable.
-            CommandType.WIPE -> {
-                cart.clear()
-                settings.setRestrictApp(false)
-                controller.showMessage("Local data wiped (emulated)")
                 true
             }
 

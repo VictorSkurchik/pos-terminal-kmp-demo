@@ -15,6 +15,9 @@ interface DeviceDao {
 
     @Query("SELECT * FROM devices WHERE id = :id")
     suspend fun getById(id: String): DeviceEntity?
+
+    @Query("DELETE FROM devices WHERE id = :id")
+    suspend fun delete(id: String): Int
 }
 
 @Dao
@@ -34,4 +37,7 @@ interface CommandDao {
 
     @Query("SELECT * FROM commands WHERE deviceId = :deviceId ORDER BY createdAt DESC")
     suspend fun getAllForDevice(deviceId: String): List<CommandEntity>
+
+    @Query("DELETE FROM commands WHERE deviceId = :deviceId")
+    suspend fun deleteForDevice(deviceId: String)
 }

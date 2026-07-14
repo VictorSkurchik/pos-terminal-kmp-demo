@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   SERVER_URL,
+  deleteDevice,
   listDevices,
   postCommand,
   type CommandType,
@@ -23,6 +24,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("Please restart the terminal");
   const [token, setToken] = useState(newToken);
+  const [wipeTarget, setWipeTarget] = useState<Device | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -49,6 +51,13 @@ export default function App() {
     postCommand(id, type, payload).catch((e) =>
       setError(e instanceof Error ? e.message : "request failed"),
     );
+  };
+
+  const confirmWipe = (device: Device) => {
+    deleteDevice(device.id)
+      .then(() => setDevices((prev) => prev.filter((d) => d.id !== device.id)))
+      .catch((e) => setError(e instanceof Error ? e.message : "request failed"))
+      .finally(() => setWipeTarget(null));
   };
 
   const qrPayload = JSON.stringify({ token, serverUrl: SERVER_URL });
@@ -93,17 +102,35 @@ export default function App() {
                 Message
               </button>
               <button onClick={() => send(d.id, "RESTRICT_APP", "on")}>
-                Restrict
+                Restrict payment
               </button>
               <button onClick={() => send(d.id, "RESTRICT_APP", "off")}>
-                Unrestrict
+                Allow payment
               </button>
-              <button className="danger" onClick={() => send(d.id, "WIPE")}>
+              <button className="danger" onClick={() => setWipeTarget(d)}>
                 Wipe
               </button>
             </div>
           </section>
         ))
+      )}
+
+      {wipeTarget && (
+        <div className="modal-backdrop" onClick={() => setWipeTarget(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Wipe device?</h2>
+            <p className="muted">
+              “{wipeTarget.name}” ({wipeTarget.id}) will be removed from the console. The terminal
+              detects this and resets to the registration screen.
+            </p>
+            <div className="buttons">
+              <button onClick={() => setWipeTarget(null)}>Cancel</button>
+              <button className="danger" onClick={() => confirmWipe(wipeTarget)}>
+                Wipe
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );

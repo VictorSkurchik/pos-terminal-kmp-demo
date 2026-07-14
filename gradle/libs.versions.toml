@@ -13,6 +13,8 @@ androidx-work = "2.11.2"
 androidx-datastore = "1.2.1"
 androidx-camera = "1.6.1"
 mlkit-barcode = "17.3.0"
+navigationCompose = "2.9.2"
+coil = "3.5.0"
 composeMultiplatform = "1.11.1"
 junit = "4.13.2"
 koin = "4.2.2"
@@ -81,6 +83,13 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidxCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koin-androidxWorkmanager = { module = "io.insert-koin:koin-androidx-workmanager", version.ref = "koin" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
+
+# Navigation (Compose Multiplatform build of Google's Navigation Compose)
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+
+# Coil 3 — image loading for product cards / offers
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-networkOkhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
 # QR enrollment (Android scanner)
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }

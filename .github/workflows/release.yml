@@ -1,13 +1,16 @@
-name: CI
+name: Release APK
 
+# Tag a commit `vX.Y.Z` (or run manually) to build the APK and attach it to a GitHub Release.
 on:
   push:
-    branches: [main]
-  pull_request:
+    tags: ['v*']
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +20,6 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      # :core has an Android target, so the SDK is needed even for server/web builds.
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
@@ -25,18 +27,11 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Test shared module
-        run: ./gradlew :core:jvmTest --no-configuration-cache
-
-      - name: Build backend fat jar
-        run: ./gradlew :server:buildFatJar --no-configuration-cache
-
       - name: Build Android debug APK
         run: ./gradlew :app:androidApp:assembleDebug --no-configuration-cache
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+      - name: Attach APK to the release
+        uses: softprops/action-gh-release@v2
         with:
-          name: androidApp-debug
-          path: app/androidApp/build/outputs/apk/debug/androidApp-debug.apk
-          if-no-files-found: error
+          files: app/androidApp/build/outputs/apk/debug/androidApp-debug.apk
+          generate_release_notes: true

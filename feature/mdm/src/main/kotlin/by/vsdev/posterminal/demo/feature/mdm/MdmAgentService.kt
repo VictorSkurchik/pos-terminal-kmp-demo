@@ -39,6 +39,7 @@ class MdmAgentService : Service(), KoinComponent {
 
     private val settings: SettingsRepository by inject()
     private val remote: RemoteRepository by inject()
+    private val executor: CommandExecutor by inject()
     private val controller: MdmController by inject()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -73,7 +74,7 @@ class MdmAgentService : Service(), KoinComponent {
                     remote.fetchCommands().forEach { command ->
                         controller.emitEvent(describe(command)) // snackbar when foreground
                         notifyCommand(command)                  // notification always
-                        // NOTE: command execution (kiosk etc.) is wired in iteration 2.
+                        executor.execute(command)               // LOCK / KIOSK / SHOW_MESSAGE / RESTRICT_APP
                         remote.ack(command.id)
                     }
                 }

@@ -99,4 +99,21 @@ class EnrollmentViewModel(
         scheduler.triggerOnce()
         status.value = "Sync requested"
     }
+
+    /** Logout: cancel the agent, delete this device from the backend, clear local enrollment. */
+    fun logout() {
+        if (busy.value) return
+        viewModelScope.launch {
+            busy.value = true
+            status.value = null
+            try {
+                scheduler.cancel()
+                remote.logout()
+            } catch (e: Exception) {
+                status.value = "Logout error: ${e.message}"
+            } finally {
+                busy.value = false
+            }
+        }
+    }
 }

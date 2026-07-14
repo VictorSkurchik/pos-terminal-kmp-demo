@@ -56,8 +56,8 @@ class SettingsRepository(private val context: Context) {
         context.dataStore.edit { it[Keys.DEVICE_NAME] = name }
     }
 
-    /** Full wipe of local state (WIPE emulation). */
-    suspend fun clearAll() {
+    /** Clears enrollment + all local state → app returns to the Registration screen. */
+    suspend fun clearEnrollment() {
         context.dataStore.edit { it.clear() }
     }
 

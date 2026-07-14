@@ -8,6 +8,7 @@ data class Product(
     val id: String,
     val name: String,
     val priceCents: Long,
+    val imageUrl: String? = null,
 )
 
 /** A line item in the cart/order. */

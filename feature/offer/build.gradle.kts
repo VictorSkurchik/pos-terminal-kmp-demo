@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "by.vsdev.posterminal.demo.core.ui"
+    namespace = "by.vsdev.posterminal.demo.feature.offer"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -26,15 +26,7 @@ kotlin {
 
 dependencies {
     api(projects.core)
-
-    api(libs.compose.runtime)
-    api(libs.compose.foundation)
-    api(libs.compose.material3)
-    api(libs.compose.ui)
-    api(libs.androidx.lifecycle.runtimeCompose)
-
-    api(libs.coil.compose)
-    implementation(libs.coil.networkOkhttp)
+    implementation(projects.core.ui)
 
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)

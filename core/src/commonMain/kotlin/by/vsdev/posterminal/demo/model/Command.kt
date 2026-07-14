@@ -9,7 +9,6 @@ enum class CommandType {
     KIOSK_ON,
     KIOSK_OFF,
     SHOW_MESSAGE,
-    WIPE,
     RESTRICT_APP,
 }
 

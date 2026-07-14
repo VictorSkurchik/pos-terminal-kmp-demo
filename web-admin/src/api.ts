@@ -8,7 +8,6 @@ export type CommandType =
   | "KIOSK_ON"
   | "KIOSK_OFF"
   | "SHOW_MESSAGE"
-  | "WIPE"
   | "RESTRICT_APP";
 
 export type DeviceStatus = "ONLINE" | "OFFLINE" | "LOCKED" | "KIOSK";
@@ -45,5 +44,11 @@ export async function postCommand(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ type, payload }),
   });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+}
+
+/** Wipe = remove the device from the backend; the terminal detects the 404 and resets. */
+export async function deleteDevice(deviceId: string): Promise<void> {
+  const res = await fetch(`${SERVER_URL}/devices/${deviceId}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }

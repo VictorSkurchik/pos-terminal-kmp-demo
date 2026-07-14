@@ -19,6 +19,7 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
@@ -110,6 +111,16 @@ fun Application.module() {
         // List of all devices for the admin.
         get("/devices") {
             call.respond(repository.listDevices())
+        }
+
+        // Admin removes a device (Wipe / device Logout). Its commands are deleted too.
+        delete("/devices/{id}") {
+            val id = call.deviceId() ?: return@delete
+            if (repository.deleteDevice(id)) {
+                call.respond(HttpStatusCode.OK, mapOf("ok" to true))
+            } else {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "device not found"))
+            }
         }
     }
 }

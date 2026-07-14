@@ -17,10 +17,12 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.feature.pos)
     implementation(projects.feature.mdm)
+    implementation(projects.feature.offer)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.compose.ui)
     implementation(libs.androidx.lifecycle.viewmodelCompose)
+    implementation(libs.navigation.compose)
 
     implementation(libs.koin.android)
     implementation(libs.koin.androidxCompose)

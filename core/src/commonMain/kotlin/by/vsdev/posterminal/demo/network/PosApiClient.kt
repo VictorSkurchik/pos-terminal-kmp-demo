@@ -9,20 +9,27 @@ import by.vsdev.posterminal.demo.model.DeviceCommand
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+
+/** Thrown when a device-scoped call returns 404 — the backend no longer knows this device. */
+class DeviceNotFoundException(val deviceId: String) :
+    RuntimeException("Device not found on backend: $deviceId")
 
 /**
  * Single HTTP client to the backend. Reused by the Android agent and the web admin:
  * the shared `:core` compiles for android/jvm (OkHttp) and js (fetch).
  *
- * [baseUrl] e.g. `https://pos-mdm-backend.onrender.com`. [apiKey] is an optional static key
+ * [baseUrl] e.g. `https://pos-terminal-kmp-demo.onrender.com`. [apiKey] is an optional static key
  * (TODO for prod).
  */
 class PosApiClient(
@@ -40,17 +47,17 @@ class PosApiClient(
     suspend fun heartbeat(deviceId: String, request: HeartbeatRequest): Device =
         client.post("$base/devices/$deviceId/heartbeat") {
             jsonBody(request)
-        }.body()
+        }.requireFound(deviceId).body()
 
     suspend fun getCommands(deviceId: String): List<DeviceCommand> =
         client.get("$base/devices/$deviceId/commands") {
             auth()
-        }.body()
+        }.requireFound(deviceId).body()
 
     suspend fun ackCommand(deviceId: String, commandId: String, request: AckRequest = AckRequest()) {
         client.post("$base/devices/$deviceId/commands/$commandId/ack") {
             jsonBody(request)
-        }
+        }.requireFound(deviceId)
     }
 
     suspend fun postCommand(deviceId: String, request: NewCommandRequest): DeviceCommand =
@@ -63,7 +70,17 @@ class PosApiClient(
             auth()
         }.body()
 
+    /** Removes the device from the backend (Wipe / Logout). */
+    suspend fun deleteDevice(deviceId: String) {
+        client.delete("$base/devices/$deviceId") { auth() }
+    }
+
     fun close() = client.close()
+
+    private fun HttpResponse.requireFound(deviceId: String): HttpResponse {
+        if (status == HttpStatusCode.NotFound) throw DeviceNotFoundException(deviceId)
+        return this
+    }
 
     private fun io.ktor.client.request.HttpRequestBuilder.auth() {
         apiKey?.let { header("X-Api-Key", it) }

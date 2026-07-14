@@ -75,6 +75,12 @@ class DeviceRepository(db: AppDatabase) {
         commands.updateStatus(commandId, request.status.name)
         return true
     }
+
+    /** Removes the device and its command queue. @return true if the device existed. */
+    suspend fun deleteDevice(deviceId: String): Boolean {
+        commands.deleteForDevice(deviceId)
+        return devices.delete(deviceId) > 0
+    }
 }
 
 private fun DeviceEntity.toModel() = Device(
