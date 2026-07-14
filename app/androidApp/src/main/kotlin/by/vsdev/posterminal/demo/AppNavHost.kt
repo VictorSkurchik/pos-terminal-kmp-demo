@@ -3,10 +3,7 @@ package by.vsdev.posterminal.demo
 import android.os.SystemClock
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,9 +48,6 @@ fun AppNavHost(
     val enrolled by produceState<Boolean?>(initialValue = null) {
         settings.enrolled.collect { value = it }
     }
-
-    val commandSnackbar = remember { SnackbarHostState() }
-    LaunchedEffect(Unit) { controller.events.collect { commandSnackbar.showSnackbar(it) } }
 
     val resolved = enrolled ?: run {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
@@ -116,7 +110,6 @@ fun AppNavHost(
             composable(Routes.SETTINGS) { SettingsScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.OFFER) { OfferScreen(onExit = { nav.popBackStack() }) }
         }
-        SnackbarHost(commandSnackbar, Modifier.align(Alignment.BottomCenter).navigationBarsPadding())
         MdmMessageHost()
     }
 }

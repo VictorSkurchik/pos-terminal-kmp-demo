@@ -40,7 +40,6 @@ class MdmAgentService : Service(), KoinComponent {
     private val settings: SettingsRepository by inject()
     private val remote: RemoteRepository by inject()
     private val executor: CommandExecutor by inject()
-    private val controller: MdmController by inject()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var polling = false
@@ -72,9 +71,8 @@ class MdmAgentService : Service(), KoinComponent {
                 if (settings.enrolled.first()) {
                     remote.heartbeat(batteryLevel())
                     remote.fetchCommands().forEach { command ->
-                        controller.emitEvent(describe(command)) // snackbar when foreground
-                        notifyCommand(command)                  // notification always
-                        executor.execute(command)               // LOCK / KIOSK / SHOW_MESSAGE / RESTRICT_APP
+                        notifyCommand(command)     // notification (also visible when backgrounded)
+                        executor.execute(command)  // LOCK / KIOSK / SHOW_MESSAGE / RESTRICT_APP / WIPE
                         remote.ack(command.id)
                     }
                 }
@@ -87,9 +85,6 @@ class MdmAgentService : Service(), KoinComponent {
         scope.cancel()
         super.onDestroy()
     }
-
-    private fun describe(command: DeviceCommand): String =
-        "Command: ${command.type.name}" + (command.payload?.let { " — $it" } ?: "")
 
     private fun batteryLevel(): Int? {
         val bm = applicationContext.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager

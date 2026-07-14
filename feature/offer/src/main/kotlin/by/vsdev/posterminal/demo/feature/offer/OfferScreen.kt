@@ -91,7 +91,7 @@ fun OfferScreen(
         MaterialTheme.colorScheme.secondaryContainer,
         MaterialTheme.colorScheme.tertiaryContainer,
     )
-    val onColor = Color.Black.copy(alpha = 0.85f)
+    val onColor = Color.White
 
     BoxWithConstraints(
         modifier
@@ -122,7 +122,7 @@ fun OfferScreen(
         }
 
         Surface(
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+            color = Color.Black.copy(alpha = 0.28f),
             shape = RoundedCornerShape(22.dp),
             modifier = Modifier
                 .align(Alignment.BottomStart)
