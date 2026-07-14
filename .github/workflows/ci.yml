@@ -33,6 +33,3 @@ jobs:
 
       - name: Build Android debug APK
         run: ./gradlew :app:androidApp:assembleDebug --no-configuration-cache
-
-      - name: Build web distribution
-        run: ./gradlew :app:webApp:jsBrowserDistribution --no-configuration-cache

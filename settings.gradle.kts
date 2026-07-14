@@ -29,7 +29,6 @@ dependencyResolutionManagement {
 }
 
 include(":app:androidApp")
-include(":app:webApp")
 include(":core")
 include(":core:ui")
 include(":core:data")

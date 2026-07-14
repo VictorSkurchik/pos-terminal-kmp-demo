@@ -14,7 +14,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
 SERVER_PORT=8080
-WEB_PORT=8081
+WEB_PORT=5173
 PKG="by.vsdev.posterminal.demo"
 GRADLE_FLAGS="--no-configuration-cache --console=plain"
 LOG_DIR="$ROOT/.run-logs"
@@ -68,10 +68,15 @@ PIDS+=("$!")
 wait_for_url "http://localhost:$SERVER_PORT/devices" 120 "backend" \
   || { echo "backend did not start, see .run-logs/server.log"; exit 1; }
 
-# -- web admin ----------------------------------------------------------------
+# -- web admin (Vite dev, pointed at the local backend) -----------------------
 if [ "$RUN_WEB" = 1 ]; then
-  echo "web      :app:webApp:jsBrowserDevelopmentRun -> http://localhost:$WEB_PORT   (log: .run-logs/web.log)"
-  ./gradlew :app:webApp:jsBrowserDevelopmentRun $GRADLE_FLAGS > "$LOG_DIR/web.log" 2>&1 &
+  echo "web      web-admin (Vite dev)     -> http://localhost:$WEB_PORT   (log: .run-logs/web.log)"
+  if [ ! -d web-admin/node_modules ]; then
+    echo "  installing web-admin deps (first run)..."
+    (cd web-admin && npm install) >> "$LOG_DIR/web.log" 2>&1
+  fi
+  VITE_SERVER_URL="http://localhost:$SERVER_PORT" \
+    npm --prefix web-admin run dev -- --port "$WEB_PORT" --strictPort >> "$LOG_DIR/web.log" 2>&1 &
   PIDS+=("$!")
 fi
 

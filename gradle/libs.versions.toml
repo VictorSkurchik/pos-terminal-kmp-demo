@@ -13,12 +13,10 @@ androidx-work = "2.11.2"
 androidx-datastore = "1.2.1"
 androidx-camera = "1.6.1"
 mlkit-barcode = "17.3.0"
-qrose = "1.1.2"
 composeMultiplatform = "1.11.1"
 junit = "4.13.2"
 koin = "4.2.2"
 kotlin = "2.4.0"
-kotlin-wrappers = "2026.6.1"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 ksp = "2.3.10"
@@ -84,10 +82,7 @@ koin-androidxCompose = { module = "io.insert-koin:koin-androidx-compose", versio
 koin-androidxWorkmanager = { module = "io.insert-koin:koin-androidx-workmanager", version.ref = "koin" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 
-wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
-
-# QR enrollment
-qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrose" }
+# QR enrollment (Android scanner)
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "androidx-camera" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "androidx-camera" }

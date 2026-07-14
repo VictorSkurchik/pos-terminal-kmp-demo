@@ -11,15 +11,16 @@ screen pinning).
 - **MDM agent**: the device registers with the backend, sends heartbeats, polls a command queue
   (WorkManager) and executes commands.
 - **Backend** (Ktor + Room/SQLite): stores devices and the command queue, exposes a REST API.
-- **Web admin** (Compose for Web / Kotlin JS): device list + command buttons.
+- **Web admin** (React + TypeScript, Vite): device list + command buttons + QR generator.
 
-All clients talk through a single **shared KMP module** — models, DTOs and the HTTP client are written once.
+The backend, the Android app and the **shared KMP `:core`** module reuse the same models, DTOs and Ktor
+HTTP client. The web admin is a small separate TS app that mirrors the handful of DTO types.
 
 ## Module architecture
 
 ```
-:core            KMP (android, jvm, js) — @Serializable models, DTOs, CommandType,
-                 Ktor HttpClient (expect/actual engine), PosApiClient. Reused EVERYWHERE.
+:core            KMP (android, jvm) — @Serializable models, DTOs, CommandType,
+                 Ktor HttpClient, PosApiClient. Shared by :server and the Android app.
 :server          Ktor (JVM) -> :core. Room + BundledSQLiteDriver (self-contained SQLite), REST API.
 :core:ui         Android library — Compose Material3 theme, shared components.
 :core:data       Android library — Room(AndroidSQLiteDriver) local DB, DataStore prefs,
@@ -28,20 +29,20 @@ All clients talk through a single **shared KMP module** — models, DTOs and the
 :feature:mdm     Android feature — DeviceAdminReceiver, CommandExecutor, MdmSyncWorker (WorkManager),
                  enrollment screen + QR scanner (CameraX + ML Kit).
 :app:androidApp  Android app — Koin init, MainActivity + navigation, Device Admin, WorkManager.
-:app:webApp      Compose Web (Kotlin/JS) -> :core. Admin console.
+web-admin/       React + TypeScript (Vite) — admin console. Not KMP; mirrors :core DTOs in TS.
 ```
 
 The backend is the single source of truth. Shared reuse points:
-- **models/DTOs/`CommandType`/HTTP client** — `:core`, three consumers (server JVM, Android, web JS);
+- **models/DTOs/`CommandType`/HTTP client** — `:core`, two consumers (server JVM, Android);
 - **Room** — one style on the server (`BundledSQLiteDriver`) and on Android (`AndroidSQLiteDriver`);
-- **Koin** — a single DI style across all Android modules (+ the worker factory);
-- **`formatCents()`** and other utilities — from `:core`, used by both the Android UI and the web admin.
+- **Koin** — a single DI style across all Android modules (+ the worker factory).
 
 ## Tech stack
 
-Kotlin 2.4, AGP 9 (built-in Kotlin), Compose Multiplatform 1.11, Ktor 3.5 (client + server),
+Kotlin 2.4, AGP 9 (built-in Kotlin), Compose Multiplatform 1.11 (Android), Ktor 3.5 (client + server),
 Room 2.8 (KMP), Koin 4.2, WorkManager, kotlinx.serialization, Coroutines/Flow, MVVM.
-QR enrollment: CameraX + ML Kit Barcode Scanning (Android), qrose (web QR generator).
+Web admin: React 19 + TypeScript + Vite. QR enrollment: CameraX + ML Kit Barcode Scanning (Android),
+qrcode.react (web QR generator).
 
 ## Running
 
@@ -54,9 +55,9 @@ Requires JDK 17+, Android SDK, an emulator/device.
 ./run.sh --no-android   # backend + web only
 ```
 
-The script starts the backend (8080) and web admin (8081), sets up `adb reverse` automatically,
-installs and launches the Android app, waits for the services to be ready, and streams logs
-(into `.run-logs/`). `Ctrl+C` stops everything and frees the ports.
+The script starts the backend (8080) and the web admin (Vite dev on 5173, pointed at the local backend
+via `VITE_SERVER_URL`), sets up `adb reverse` automatically, installs and launches the Android app, waits
+for the services, and streams logs (into `.run-logs/`). `Ctrl+C` stops everything and frees the ports.
 
 Below is how to run each part separately.
 
@@ -82,8 +83,10 @@ The **Enable Device Admin** button is needed for a real `LOCK`. **Sync now** run
 ### 3. Web admin
 
 ```bash
-./gradlew :app:webApp:jsBrowserDevelopmentRun
-# http://localhost:8081 (port 8081 so it doesn't clash with the backend on 8080)
+cd web-admin
+npm install
+VITE_SERVER_URL=http://localhost:8080 npm run dev   # http://localhost:5173
+# omit VITE_SERVER_URL to target the deployed Render backend
 ```
 
 The device list refreshes every 3s; the buttons send commands to the selected device.
@@ -122,40 +125,36 @@ curl localhost:8080/devices/dev-001/commands
 ## QR enrollment
 
 The full loop is implemented:
-- the web admin generates a QR (`qrose`) with `EnrollmentToken(token, serverUrl)` — "New token" button;
+- the web admin generates a QR (`qrcode.react`) with an `EnrollmentToken` JSON `{token, serverUrl}` —
+  "New token" button;
 - Android scans it (**CameraX + ML Kit Barcode Scanning**, `:feature:mdm/QrScanner`), parses the token
-  with shared code from `:core` (`parseEnrollmentToken`), and self-registers;
+  with `:core` (`parseEnrollmentToken`), and self-registers;
 - the backend stores the token on the device — visible in `GET /devices` and on the admin card
-  ("enrolled via QR token=…").
+  ("QR token=…").
 
-Encoding/decoding of the payload is the same code in `:core` (`toQrPayload` / `parseEnrollmentToken`,
-covered by a `:core:jvmTest` test). Optical scanning must be checked on a real camera (the emulator
-cannot "show" a QR to its virtual camera).
+Optical scanning must be checked on a real camera (the emulator cannot "show" a QR to its virtual camera).
 
 ## Deployment (cloud)
 
-Both clients are pinned to the backend at `https://pos-terminal-kmp-demo.onrender.com`
-(`DEFAULT_BASE_URL` in `:core:data`, `SERVER_URL` in `:app:webApp`).
+Backend URL is pinned in `DEFAULT_BASE_URL` (`:core:data`) for the app, and defaults in the web admin
+(`web-admin/src/api.ts`, overridable via `VITE_SERVER_URL`).
 
 **Backend → Render** (Docker blueprint):
-1. Push this repo to GitHub.
-2. On Render: *New → Blueprint*, select the repo. Render reads `render.yaml` and builds `Dockerfile`
+1. On Render: *New → Blueprint*, select the repo. Render reads `render.yaml` and builds `Dockerfile`
    (JDK 21 + Android SDK, produces the Ktor fat jar). The service listens on `$PORT`; Render provides HTTPS.
-3. Free plan notes: the SQLite file is ephemeral (resets on redeploy) and the instance cold-starts after
+2. Free plan notes: the SQLite file is ephemeral (resets on redeploy) and the instance cold-starts after
    idle, so the first request can take ~30–60 s. For persistent data, add a Render disk and set
    `DATABASE_PATH=/data/pos.db`.
 
-**Web admin → Vercel** (GitHub Actions, `.github/workflows/deploy-web.yml`):
-1. Create a Vercel project once (e.g. `vercel link`, or the dashboard) — output is static, no framework.
-2. Add repo secrets in GitHub → *Settings → Secrets → Actions*: `VERCEL_TOKEN`, `VERCEL_ORG_ID`,
-   `VERCEL_PROJECT_ID`.
-3. On every push to `main` touching the web/shared code, the workflow builds
-   `:app:webApp:jsBrowserDistribution` and deploys `app/webApp/build/dist/js/productionExecutable` to Vercel.
+**Web admin → Vercel** (native, no GitHub Actions):
+1. Import the repo in Vercel and set **Root Directory = `web-admin`**. Vercel auto-detects Vite,
+   runs `npm install` + `npm run build`, and serves `dist/`.
+2. Every push to `main` auto-deploys. No tokens or secrets — the Vercel Git integration handles it.
 
-`.github/workflows/ci.yml` builds the backend jar, the Android APK, the web bundle and runs the `:core`
-test on every push/PR. The Android SDK is set up in CI because `:core` has an Android target.
+`.github/workflows/ci.yml` builds the backend jar and the Android APK and runs the `:core` test on every
+push/PR. The Android SDK is set up in CI because `:core` has an Android target.
 
 ## Intentionally out of scope for the MVP
 
 Real Device Owner / Zero-Touch, FCM push (polling via WorkManager is used instead),
-real payments, full authentication/encryption, cloud deployment.
+real payments, full authentication/encryption.
