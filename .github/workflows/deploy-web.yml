@@ -43,5 +43,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           npm i -g vercel@latest
-          vercel deploy app/webApp/build/dist/js/productionExecutable \
-            --prod --yes --token "$VERCEL_TOKEN"
+          DIST=app/webApp/build/dist/js/productionExecutable
+          # Mark the folder as prebuilt static output — no build/install on Vercel.
+          printf '{"framework":null,"buildCommand":null,"installCommand":null}\n' > "$DIST/vercel.json"
+          vercel deploy "$DIST" --prod --yes --token "$VERCEL_TOKEN"
