@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Restaurant POS + MDM (Demo)</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5c6370;
+    --card: #f6f7f9; --border: #e3e6ea; --accent: #4f46e5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115; --fg: #e6e8eb; --muted: #9aa2ad;
+      --card: #171a21; --border: #262b33; --accent: #8b8bff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 48px 20px 80px; }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 6px; }
+  h2 { font-size: 1.2rem; margin: 40px 0 10px; }
+  p, li { color: var(--fg); }
+  .meta { color: var(--muted); font-size: 0.92rem; margin: 0 0 8px; }
+  .note {
+    background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 14px 16px; margin: 20px 0; font-size: 0.95rem;
+  }
+  ul { padding-left: 20px; }
+  li { margin: 6px 0; }
+  a { color: var(--accent); }
+  code { background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-size: 0.9em; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Restaurant POS + MDM (Demo) &nbsp;·&nbsp; Android package <code>by.vsdev.posterminal.demo</code></p>
+  <p class="meta">Last updated: 14 July 2026</p>
+
+  <div class="note">
+    This application is a <strong>portfolio / demonstration app</strong>. It does not process real
+    payments, real customer orders, or real financial data. The "payment" step is a non-functional stub.
+  </div>
+
+  <p>
+    This Privacy Policy explains what information the <strong>Restaurant POS + MDM (Demo)</strong>
+    application ("the App") handles, why, and your choices regarding it. By installing and using the
+    App you agree to the practices described here.
+  </p>
+
+  <h2>Information the App collects</h2>
+  <p>
+    The App is a demonstration of a point-of-sale terminal with a mobile-device-management (MDM) agent.
+    To show remote device management, each device sends a small amount of <strong>non-personal technical
+    data</strong> to the demo backend:
+  </p>
+  <ul>
+    <li><strong>Device identifier</strong> — a random value (e.g. <code>pos-1a2b3c4d</code>) generated on
+      the device the first time the App runs. It is <em>not</em> derived from any hardware identifier
+      (no IMEI, no Android ID, no advertising ID) and cannot be used to identify you.</li>
+    <li><strong>Device name</strong> — a label you type yourself during enrollment.</li>
+    <li><strong>Device model</strong> — the public model string (e.g. "Pixel 7"), used for display in
+      the admin console.</li>
+    <li><strong>Battery level</strong> and basic status flags (online/offline, kiosk mode, payment
+      restriction) and a timestamp, sent as periodic "heartbeats".</li>
+    <li><strong>Enrollment token</strong> — an optional code scanned from a QR code to associate the
+      device with a demo account.</li>
+  </ul>
+
+  <h2>Information the App does NOT collect</h2>
+  <ul>
+    <li>No name, email, phone number, or any personal contact information.</li>
+    <li>No location data.</li>
+    <li>No contacts, photos, files, microphone, or camera data (the camera, if used, only scans an
+      enrollment QR code locally and stores no images).</li>
+    <li>No real payment or card data — payments are simulated.</li>
+    <li>No advertising identifiers, and no third-party advertising or analytics SDKs.</li>
+  </ul>
+
+  <h2>How the information is used</h2>
+  <p>
+    Collected technical data is used solely to demonstrate MDM features: listing devices, showing their
+    live status, and sending remote commands (e.g. lock, enable kiosk mode) from the web admin console.
+    It is never sold, rented, or used for advertising or profiling.
+  </p>
+
+  <h2>Permissions</h2>
+  <p>
+    The App requests only the <code>INTERNET</code> permission, which is required to communicate with the
+    demo backend.
+  </p>
+
+  <h2>Where data is stored and third parties</h2>
+  <p>
+    The demo backend and admin console are hosted on third-party infrastructure purely for demonstration:
+  </p>
+  <ul>
+    <li><strong>Render</strong> (backend API and database) — <a href="https://render.com/privacy" rel="noopener">render.com/privacy</a></li>
+    <li><strong>Vercel</strong> (web admin console hosting) — <a href="https://vercel.com/legal/privacy-policy" rel="noopener">vercel.com/legal/privacy-policy</a></li>
+  </ul>
+  <p>
+    No other third parties receive data from the App.
+  </p>
+
+  <h2>Data retention and deletion</h2>
+  <p>
+    Device records are kept only to demonstrate the console. A device (and all of its data) can be
+    deleted at any time from the admin console, which removes it from the backend. Because this is a
+    demo, records may also be cleared periodically without notice. Uninstalling the App removes all
+    data stored locally on the device.
+  </p>
+
+  <h2>Children's privacy</h2>
+  <p>
+    The App is intended for demonstration to a general/professional audience and is not directed at
+    children under 13. It does not knowingly collect any information from children.
+  </p>
+
+  <h2>Changes to this policy</h2>
+  <p>
+    This policy may be updated from time to time. Changes take effect when the updated version is
+    published at this URL, with a revised "Last updated" date.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    For any questions about this policy, contact the developer via the project repository:
+    <a href="https://github.com/VictorSkurchik/pos-terminal-kmp-demo" rel="noopener">github.com/VictorSkurchik/pos-terminal-kmp-demo</a>
+    (open an issue), or by email at <a href="mailto:your-email@example.com">your-email@example.com</a>.
+  </p>
+
+  <footer>
+    Restaurant POS + MDM — a Kotlin Multiplatform portfolio project. This document describes the demo
+    build only.
+  </footer>
+</main>
+</body>
+</html>
