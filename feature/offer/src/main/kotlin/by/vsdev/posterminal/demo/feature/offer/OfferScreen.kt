@@ -31,10 +31,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import by.vsdev.posterminal.demo.core.ui.components.StoryProgressBar
+import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
 import coil3.compose.AsyncImage
 
 /** One promotional slide. Real images are user-provided; [emoji] is the placeholder motif. */
@@ -86,17 +89,21 @@ fun OfferScreen(
     }
 
     val offer = offers[index]
-    val palette = listOf(
-        MaterialTheme.colorScheme.primaryContainer,
-        MaterialTheme.colorScheme.secondaryContainer,
-        MaterialTheme.colorScheme.tertiaryContainer,
-    )
-    val onColor = Color.White
+    val scheme = MaterialTheme.colorScheme
+    // Container + matching on-container colors keep text legible in both light and dark themes.
+    val palette = remember(scheme) {
+        listOf(
+            scheme.primaryContainer to scheme.onPrimaryContainer,
+            scheme.secondaryContainer to scheme.onSecondaryContainer,
+            scheme.tertiaryContainer to scheme.onTertiaryContainer,
+        )
+    }
+    val (background, onColor) = palette[index % palette.size]
 
     BoxWithConstraints(
         modifier
             .fillMaxSize()
-            .background(palette[index % palette.size])
+            .background(background)
             .pointerInput(Unit) { detectTapGestures { onExit() } },
     ) {
         val w = maxWidth
@@ -131,14 +138,13 @@ fun OfferScreen(
             Column(Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
                 Text(
                     offer.title,
-                    fontSize = 56.sp,
+                    style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
                     color = onColor,
-                    lineHeight = 60.sp,
                 )
                 Text(
                     offer.subtitle,
-                    fontSize = 26.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     color = onColor.copy(alpha = 0.75f),
                     modifier = Modifier.padding(top = 8.dp),
                 )
@@ -166,10 +172,20 @@ fun OfferScreen(
         }
 
         Text(
-            "tap to exit",
-            fontSize = 13.sp,
+            stringResource(R.string.offer_tap_to_exit),
+            style = MaterialTheme.typography.labelMedium,
             color = onColor.copy(alpha = 0.5f),
-            modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(20.dp),
         )
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 640)
+@Composable
+private fun OfferPreview() {
+    PosTheme {
+        OfferScreen(onExit = {})
     }
 }

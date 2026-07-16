@@ -25,18 +25,34 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Test shared module
-        run: ./gradlew :core:jvmTest --no-configuration-cache
+      - name: Formatting & static analysis (ktlint + detekt)
+        run: ./gradlew ktlintCheck detekt
+
+      - name: Android Lint
+        run: ./gradlew :app:androidApp:lintDevDebug
+
+      - name: Unit tests (all modules)
+        run: ./gradlew testDebugUnitTest :app:androidApp:testDevDebugUnitTest :core:jvmTest
 
       - name: Build backend fat jar
-        run: ./gradlew :server:buildFatJar --no-configuration-cache
+        run: ./gradlew :server:buildFatJar
 
       - name: Build Android debug APK
-        run: ./gradlew :app:androidApp:assembleDebug --no-configuration-cache
+        run: ./gradlew :app:androidApp:assembleDevDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: androidApp-debug
-          path: app/androidApp/build/outputs/apk/debug/androidApp-debug.apk
+          name: androidApp-dev-debug
+          path: app/androidApp/build/outputs/apk/dev/debug/androidApp-dev-debug.apk
           if-no-files-found: error
+
+  commitlint:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate PR commit messages (Conventional Commits)
+        uses: wagoid/commitlint-github-action@v6

@@ -58,31 +58,53 @@ Start destination is enrolment-driven: unenrolled → **Registration**, enrolled
 
 ## Module architecture
 
+Clean Architecture: a framework-free domain core, a data layer that implements its contracts, and thin
+feature/UI modules on top. Dependencies point **inwards only**. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 ```
-:core            KMP (android, jvm) — @Serializable models, DTOs, CommandType,
-                 Ktor HttpClient, PosApiClient. Shared by :server and the Android app.
+:core            KMP (android, jvm, js) — @Serializable wire DTOs + PosApi/KtorPosApiClient.
+                 Transport-only; shared by :server and the Android data layer.
+:core:domain     Pure Kotlin/JVM — domain models, AppResult/DomainError, repository & service
+                 interfaces, DispatcherProvider, use cases. No Android/Ktor/Room/Koin.
 :server          Ktor (JVM) -> :core. Room + BundledSQLiteDriver (self-contained SQLite), REST API.
-:core:ui         Android library — Material3 theme (mint palette/type/shapes) + atomic-design
-                 components: atoms/molecules/organisms (AppButton, ProductCard, MenuGrid,
-                 CartPanel, StoryProgressBar, ConfirmDialog, …). Coil for images.
-:core:data       Android library — Room(AndroidSQLiteDriver) local DB, DataStore prefs,
-                 repositories over PosApiClient, Koin dataModule.
-:feature:pos     Android feature — reworked POS screen (top bar + 2-col grid + transparent cart).
-:feature:mdm     Android feature — MdmAgentService (always-on foreground service), CommandExecutor,
+:core:ui         Android library — Material3 theme + atomic-design components (AppButton, ProductCard,
+                 MenuGrid, CartPanel, StoryProgressBar, ConfirmDialog, …) with @Preview. Coil for images.
+:core:data       Android library — implements the domain repositories, maps DTO↔domain, Room
+                 (AndroidSQLiteDriver) + DataStore, Koin dataModule/domainModule.
+:feature:pos     Android feature — POS ViewModel over use cases + stateless screen.
+:feature:mdm     Android feature — MdmAgentService (foreground service), CommandExecutor,
                  DeviceAdminReceiver, MdmSyncWorker, Registration + Settings screens, QR scanner.
 :feature:offer   Android feature — full-screen Offer attract loop (stories-style).
-:app:androidApp  Android app — Koin init, AppNavHost (routes + kiosk idle), foreground-service start.
+:app:androidApp  Android app — Koin init, type-safe NavHost, AppViewModel (session/kiosk), flavors.
+build-logic/     Gradle convention plugins (android.library/application/compose, quality).
 web-admin/       React + TypeScript (Vite) — admin console. Not KMP; mirrors :core DTOs in TS.
 ```
 
-Shared reuse points: models/DTOs/`CommandType`/HTTP client (`:core`); one Room style on server
-(`BundledSQLiteDriver`) and Android (`AndroidSQLiteDriver`); one Koin DI style; one design system (`:core:ui`).
+Shared reuse points: wire DTOs / `PosApi` (`:core`); domain models + use cases (`:core:domain`);
+one Room style on server (`BundledSQLiteDriver`) and Android (`AndroidSQLiteDriver`); one Koin DI style;
+one design system (`:core:ui`).
 
 ## Tech stack
 
-Kotlin 2.4, AGP 9 (built-in Kotlin), Compose Multiplatform 1.11 (Android) + Navigation Compose 2.9,
-Ktor 3.5 (client + server), Room 2.8 (KMP), Koin 4.2, WorkManager, Coil 3, material-icons-core,
-kotlinx.serialization, Coroutines/Flow, MVVM. Web admin: React 19 + TypeScript + Vite; qrcode.react.
+Kotlin 2.4, AGP 9 (built-in Kotlin), Compose Multiplatform 1.11 (Android) + type-safe Navigation
+Compose 2.9, Ktor 3.5 (client + server), Room 2.8 (KMP), Koin 4.2, WorkManager, Coil 3,
+kotlinx.serialization, Coroutines/Flow. Clean Architecture (domain use cases, `AppResult`/`DomainError`,
+MVVM with one-shot events). Web admin: React 19 + TypeScript + Vite; qrcode.react.
+
+**Engineering:** Gradle convention plugins (`build-logic/`), ktlint + detekt + Android Lint in CI,
+unit tests (JUnit + coroutines-test + Turbine + Ktor MockEngine + Room-testing), Compose `@Preview`s,
+JVM 17. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Build variants
+
+Three environments via a `env` flavor dimension; the base URL is a per-flavor `BuildConfig.SERVER_URL`
+(overridden at runtime by the QR-scanned `serverUrl`). Version is `version.properties` (semver).
+
+```bash
+./gradlew :app:androidApp:assembleDevDebug       # dev — local backend (10.0.2.2:8080), cleartext
+./gradlew :app:androidApp:assembleStagingDebug   # staging backend (HTTPS)
+./gradlew :app:androidApp:assembleProdRelease     # prod (Render), minified (R8) + signed
+```
 
 ## Running
 
@@ -110,7 +132,7 @@ Starts the backend (8080) and the web admin (Vite dev on 5173, pointed at the lo
 
 ```bash
 adb reverse tcp:8080 tcp:8080          # device localhost -> backend on the host (local dev)
-./gradlew :app:androidApp:installDebug
+./gradlew :app:androidApp:installDevDebug
 ```
 
 On first launch the app shows **Registration** — tap **Scan QR to register** and point the camera at
@@ -169,15 +191,17 @@ Optical scanning must be checked on a real camera — the emulator can't present
 
 ## Deployment (cloud)
 
-Backend URL is pinned in `DEFAULT_BASE_URL` (`:core:data`) for the app, and defaults in the web admin
-(`web-admin/src/api.ts`, overridable via `VITE_SERVER_URL`).
+Backend URL for the app comes from the flavor's `BuildConfig.SERVER_URL` (dev/staging/prod), overridden
+at runtime by the QR-scanned `serverUrl`; the web admin defaults in `web-admin/src/api.ts` (overridable
+via `VITE_SERVER_URL`).
 
 - **Backend → Render**: *New → Blueprint* on the repo. Render reads `render.yaml` and builds `Dockerfile`
   (JDK 21 + Android SDK → Ktor fat jar); binds `$PORT`, provides HTTPS.
 - **Web admin → Vercel**: import the repo, set **Root Directory = `web-admin`**; Vercel auto-detects Vite
   and auto-deploys on push. No secrets.
-- **CI** (`.github/workflows/ci.yml`): builds the backend jar + Android APK, runs `:core` tests, and
-  uploads the APK artifact. `release.yml` attaches the APK to a GitHub Release on tag `v*`.
+- **CI** (`.github/workflows/ci.yml`): ktlint + detekt + Android Lint, unit tests across all modules,
+  the backend fat jar and the dev-debug APK (uploaded as an artifact); a commit-lint job checks PR
+  commit messages. `release.yml` builds and attaches the **signed `prodRelease`** APK on tag `v*`.
 
 ## Intentionally out of scope
 

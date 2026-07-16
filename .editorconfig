@@ -1,0 +1,30 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+max_line_length = 120
+
+[*.{kt,kts}]
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+# ktlint: official Kotlin code style
+ktlint_code_style = intellij_idea
+ktlint_standard_filename = disabled
+ktlint_function_naming_ignore_when_annotated_with = Composable
+# Compose @Composable functions are PascalCase by convention.
+ktlint_standard_function-naming = disabled
+
+# Never lint generated code (Room/KSP output, R classes, etc.).
+[**/build/**]
+ktlint = disabled
+
+[*.{yml,yaml,json}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

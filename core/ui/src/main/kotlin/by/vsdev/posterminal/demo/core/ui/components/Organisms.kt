@@ -24,9 +24,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import by.vsdev.posterminal.demo.model.OrderItem
-import by.vsdev.posterminal.demo.model.Product
+import by.vsdev.posterminal.demo.core.ui.R
+import by.vsdev.posterminal.demo.domain.model.CartLine
+import by.vsdev.posterminal.demo.domain.model.Product
 
 // ---------- Organisms ----------
 
@@ -56,7 +58,7 @@ fun MenuGrid(
  */
 @Composable
 fun CartPanel(
-    items: List<OrderItem>,
+    items: List<CartLine>,
     totalCents: Long,
     payEnabled: Boolean,
     payLabel: String,
@@ -73,18 +75,18 @@ fun CartPanel(
         tonalElevation = 2.dp,
     ) {
         Column(Modifier.fillMaxHeight().padding(horizontal = 16.dp, vertical = 12.dp)) {
-            SectionTitle("Cart")
+            SectionTitle(stringResource(R.string.ui_cart))
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 if (items.isEmpty()) {
                     Text(
-                        "Cart is empty",
+                        stringResource(R.string.ui_cart_empty),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 } else {
                     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                         items.forEach { item ->
-                            CartLine(
+                            CartLineRow(
                                 item = item,
                                 onDecrement = { onDecrement(item.productId) },
                                 onIncrement = { onIncrement(item.productId) },
@@ -101,7 +103,7 @@ fun CartPanel(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Total", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.ui_total), style = MaterialTheme.typography.titleMedium)
                 PriceText(totalCents, style = MaterialTheme.typography.headlineSmall)
             }
             AppButton(

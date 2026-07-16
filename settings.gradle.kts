@@ -2,6 +2,7 @@ rootProject.name = "pos-terminal"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             mavenContent {
@@ -30,6 +31,7 @@ dependencyResolutionManagement {
 
 include(":app:androidApp")
 include(":core")
+include(":core:domain")
 include(":core:ui")
 include(":core:data")
 include(":feature:pos")

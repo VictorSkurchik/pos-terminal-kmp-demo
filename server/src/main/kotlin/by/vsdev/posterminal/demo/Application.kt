@@ -6,7 +6,7 @@ import by.vsdev.posterminal.demo.dto.AckRequest
 import by.vsdev.posterminal.demo.dto.HeartbeatRequest
 import by.vsdev.posterminal.demo.dto.NewCommandRequest
 import by.vsdev.posterminal.demo.dto.RegisterRequest
-import by.vsdev.posterminal.demo.network.PosApiClient
+import by.vsdev.posterminal.demo.network.posJson
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -34,7 +34,7 @@ fun main() {
 fun Application.module() {
     val repository = DeviceRepository(createDatabase())
 
-    install(ContentNegotiation) { json(PosApiClient.json) }
+    install(ContentNegotiation) { json(posJson) }
     install(CallLogging)
     // CORS for the web admin (Compose/JS); anyHost for the demo. TODO prod: restrict origin.
     install(CORS) {

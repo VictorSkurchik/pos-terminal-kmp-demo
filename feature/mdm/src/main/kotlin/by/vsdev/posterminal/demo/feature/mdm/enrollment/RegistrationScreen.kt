@@ -14,10 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,13 +28,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.vsdev.posterminal.demo.core.ui.components.AppButton
 import by.vsdev.posterminal.demo.core.ui.components.AppButtonVariant
+import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
+import by.vsdev.posterminal.demo.feature.mdm.R
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -44,8 +51,31 @@ fun RegistrationScreen(
     viewModel: EnrollmentViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { snackbar.showSnackbar(it.toMessage(context)) }
+    }
+
+    RegistrationContent(
+        state = state,
+        snackbar = snackbar,
+        onScan = viewModel::enrollWithToken,
+        onManual = viewModel::enroll,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun RegistrationContent(
+    state: EnrollmentUiState,
+    snackbar: SnackbarHostState,
+    onScan: (String) -> Unit,
+    onManual: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
     var showScanner by remember { mutableStateOf(false) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         showScanner = granted
@@ -56,39 +86,45 @@ fun RegistrationScreen(
             QrScanner(
                 onResult = { payload ->
                     showScanner = false
-                    viewModel.enrollWithToken(payload)
+                    onScan(payload)
                 },
                 modifier = Modifier.fillMaxSize(),
             )
             AppButton(
-                text = "Cancel",
+                text = stringResource(R.string.reg_cancel),
                 onClick = { showScanner = false },
                 variant = AppButtonVariant.Tonal,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(24.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(24.dp),
             )
         }
         return
     }
 
-    Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbar) },
+    ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().systemBarsPadding().padding(32.dp),
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .systemBarsPadding()
+                .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            Text(stringResource(R.string.reg_brand_emoji), style = MaterialTheme.typography.displaySmall)
             Text(
-                "🍽",
-                style = MaterialTheme.typography.displaySmall,
-            )
-            Text(
-                "Restaurant POS",
+                stringResource(R.string.reg_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 8.dp),
             )
             Text(
-                "Set up this terminal by scanning the enrollment QR from the admin console.",
+                stringResource(R.string.reg_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -96,7 +132,7 @@ fun RegistrationScreen(
             )
 
             AppButton(
-                text = "Scan QR to register",
+                text = stringResource(R.string.reg_scan_qr),
                 onClick = {
                     if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
                         PackageManager.PERMISSION_GRANTED
@@ -111,22 +147,31 @@ fun RegistrationScreen(
             )
 
             TextButton(
-                onClick = viewModel::enroll,
+                onClick = onManual,
                 enabled = !state.busy,
                 modifier = Modifier.padding(top = 8.dp),
-            ) { Text("Register manually") }
+            ) { Text(stringResource(R.string.reg_register_manually)) }
 
             if (state.busy) {
-                CircularProgressIndicator(Modifier.padding(top = 24.dp).size(28.dp))
-            }
-            state.status?.let {
-                Text(
-                    it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 24.dp),
+                CircularProgressIndicator(
+                    Modifier
+                        .padding(top = 24.dp)
+                        .size(28.dp),
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun RegistrationPreview() {
+    PosTheme {
+        RegistrationContent(
+            state = EnrollmentUiState(deviceId = "pos-1a2b3c4d", name = "Front Till"),
+            snackbar = remember { SnackbarHostState() },
+            onScan = {},
+            onManual = {},
+        )
     }
 }

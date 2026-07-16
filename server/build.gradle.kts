@@ -3,12 +3,17 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktor)
+    id("posterminal.quality")
 }
 
 group = "by.vsdev.posterminal.demo"
 version = "1.0.0"
 application {
     mainClass = "by.vsdev.posterminal.demo.ApplicationKt"
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {

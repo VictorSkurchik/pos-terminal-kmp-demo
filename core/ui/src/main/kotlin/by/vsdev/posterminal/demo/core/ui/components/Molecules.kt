@@ -26,12 +26,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import by.vsdev.posterminal.demo.model.OrderItem
-import by.vsdev.posterminal.demo.model.Product
+import by.vsdev.posterminal.demo.core.ui.R
+import by.vsdev.posterminal.demo.domain.model.CartLine
+import by.vsdev.posterminal.demo.domain.model.Product
 import coil3.compose.AsyncImage
 
 // ---------- Molecules ----------
@@ -71,15 +73,15 @@ fun ProductCard(product: Product, onAdd: () -> Unit, modifier: Modifier = Modifi
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 PriceText(product.priceCents)
-                AppButton("Add", onAdd, variant = AppButtonVariant.Tonal)
+                AppButton(stringResource(R.string.ui_add), onAdd, variant = AppButtonVariant.Tonal)
             }
         }
     }
 }
 
 @Composable
-fun CartLine(
-    item: OrderItem,
+fun CartLineRow(
+    item: CartLine,
     onDecrement: () -> Unit,
     onIncrement: () -> Unit,
     modifier: Modifier = Modifier,
@@ -104,7 +106,7 @@ fun PosTopBar(title: String, onSettingsClick: () -> Unit, modifier: Modifier = M
         title = { Text(title, fontWeight = FontWeight.Bold) },
         actions = {
             IconButton(onClick = onSettingsClick) {
-                Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.ui_settings))
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -132,10 +134,12 @@ fun ConfirmDialog(
     text: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    confirmLabel: String = "OK",
-    dismissLabel: String = "Cancel",
+    confirmLabel: String? = null,
+    dismissLabel: String? = null,
     danger: Boolean = false,
 ) {
+    val confirm = confirmLabel ?: stringResource(android.R.string.ok)
+    val dismiss = dismissLabel ?: stringResource(android.R.string.cancel)
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -143,12 +147,12 @@ fun ConfirmDialog(
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(
-                    confirmLabel,
+                    confirm,
                     color = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 )
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(dismissLabel) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(dismiss) } },
     )
 }
 

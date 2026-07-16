@@ -1,0 +1,55 @@
+# Detekt configuration — layered on top of the default rules (buildUponDefaultConfig = true).
+# Tuned for a Compose + coroutines codebase.
+
+build:
+  maxIssues: 0
+
+complexity:
+  LongMethod:
+    threshold: 80
+    # Compose composables are declarative; length is layout, not logic.
+    ignoreAnnotated: ['Composable', 'Preview']
+  LongParameterList:
+    functionThreshold: 8
+    # ViewModels aggregate several use cases; Compose screens hoist several callbacks.
+    constructorThreshold: 10
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    active: false
+  CyclomaticComplexMethod:
+    threshold: 15
+    # Compose composables build up branches for state; keep the check but don't count them harshly.
+    ignoreSimpleWhenEntries: true
+
+style:
+  MagicNumber:
+    # Compose layouts are full of dp/sp literals; enforcing this rule there is noise.
+    active: false
+  ReturnCount:
+    max: 4
+  UnusedPrivateMember:
+    active: true
+    # @Preview composables are invoked by tooling, not code.
+    ignoreAnnotated: ['Preview']
+  MaxLineLength:
+    maxLineLength: 120
+
+naming:
+  FunctionNaming:
+    # @Composable functions are PascalCase.
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    active: true
+  MatchingDeclarationName:
+    # Component files deliberately group several atoms/molecules (Atoms.kt, Molecules.kt, …).
+    active: false
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+  SwallowedException:
+    active: true
+  # Catching Exception is a smell we specifically want flagged during this refactor.
+  TooGenericExceptionThrown:
+    active: true

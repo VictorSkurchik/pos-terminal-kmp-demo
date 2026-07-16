@@ -10,7 +10,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Upsert
 import androidx.sqlite.driver.AndroidSQLiteDriver
-import by.vsdev.posterminal.demo.model.OrderItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
@@ -20,13 +19,6 @@ data class CartItemEntity(
     val name: String,
     val priceCents: Long,
     val quantity: Int,
-)
-
-fun CartItemEntity.toModel() = OrderItem(
-    productId = productId,
-    name = name,
-    priceCents = priceCents,
-    quantity = quantity,
 )
 
 @Dao

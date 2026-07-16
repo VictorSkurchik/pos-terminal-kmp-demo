@@ -10,44 +10,44 @@ import android.content.pm.ServiceInfo
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import by.vsdev.posterminal.demo.core.data.prefs.SettingsRepository
-import by.vsdev.posterminal.demo.core.data.repo.RemoteRepository
-import by.vsdev.posterminal.demo.model.DeviceCommand
+import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
+import by.vsdev.posterminal.demo.domain.result.AppResult
+import by.vsdev.posterminal.demo.domain.usecase.mdm.SyncDeviceUseCase
+import by.vsdev.posterminal.demo.domain.util.DispatcherProvider
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 /**
  * Always-on MDM agent. Runs as a foreground service so command polling keeps working when the app
- * is backgrounded — otherwise Android freezes the process and blocks its network.
- *
- * Single command consumer: heartbeat → pull pending commands → surface (snackbar via [MdmController]
- * when the UI is visible, and a notification always) → execute → ack. Declared in :feature:mdm
- * because it IS the device-management agent; :app:androidApp only starts it.
+ * is backgrounded. Each cycle delegates to [SyncDeviceUseCase] (heartbeat → pull → execute → ack);
+ * the notification per command lives in the executor, so this and the WorkManager fallback behave
+ * identically. Failures are logged, never swallowed silently.
  */
 class MdmAgentService : Service(), KoinComponent {
 
     private val settings: SettingsRepository by inject()
-    private val remote: RemoteRepository by inject()
-    private val executor: CommandExecutor by inject()
+    private val sync: SyncDeviceUseCase by inject()
+    private val dispatchers: DispatcherProvider by inject()
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope by lazy { CoroutineScope(SupervisorJob() + dispatchers.io) }
     private var polling = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        ensureChannels()
+        ensureStatusChannel()
         ServiceCompat.startForeground(
             this,
             STATUS_ID,
@@ -66,15 +66,11 @@ class MdmAgentService : Service(), KoinComponent {
     }
 
     private suspend fun pollLoop() {
-        while (true) {
-            runCatching {
-                if (settings.enrolled.first()) {
-                    remote.heartbeat(batteryLevel())
-                    remote.fetchCommands().forEach { command ->
-                        notifyCommand(command)     // notification (also visible when backgrounded)
-                        executor.execute(command)  // LOCK / KIOSK / SHOW_MESSAGE / RESTRICT_APP / WIPE
-                        remote.ack(command.id)
-                    }
+        while (currentCoroutineContext().isActive) {
+            if (settings.enrolled.first()) {
+                when (val result = sync(batteryLevel())) {
+                    is AppResult.Failure -> Log.w(TAG, "MDM sync cycle failed: ${result.error}")
+                    is AppResult.Success -> Unit
                 }
             }
             delay(POLL_MS)
@@ -91,14 +87,11 @@ class MdmAgentService : Service(), KoinComponent {
         return bm?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)?.takeIf { it in 0..100 }
     }
 
-    private fun ensureChannels() {
+    private fun ensureStatusChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val nm = getSystemService(NotificationManager::class.java) ?: return
             nm.createNotificationChannel(
                 NotificationChannel(STATUS_CHANNEL, "MDM agent", NotificationManager.IMPORTANCE_LOW),
-            )
-            nm.createNotificationChannel(
-                NotificationChannel(CMD_CHANNEL, "MDM commands", NotificationManager.IMPORTANCE_DEFAULT),
             )
         }
     }
@@ -111,20 +104,9 @@ class MdmAgentService : Service(), KoinComponent {
             .setOngoing(true)
             .build()
 
-    private fun notifyCommand(command: DeviceCommand) {
-        val notification = NotificationCompat.Builder(this, CMD_CHANNEL)
-            .setContentTitle("MDM command: ${command.type.name}")
-            .setContentText(command.payload ?: command.type.name)
-            .setSmallIcon(android.R.drawable.stat_notify_more)
-            .setAutoCancel(true)
-            .build()
-        // POST_NOTIFICATIONS may be denied — notify() then no-ops, the service keeps running.
-        runCatching { NotificationManagerCompat.from(this).notify(command.id.hashCode(), notification) }
-    }
-
     companion object {
+        private const val TAG = "MdmAgentService"
         private const val STATUS_CHANNEL = "mdm_status"
-        private const val CMD_CHANNEL = "mdm_commands"
         private const val STATUS_ID = 1001
         private const val POLL_MS = 4000L
 

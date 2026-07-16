@@ -17,17 +17,21 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.vsdev.posterminal.demo.core.ui.components.AppButton
@@ -35,6 +39,8 @@ import by.vsdev.posterminal.demo.core.ui.components.AppButtonVariant
 import by.vsdev.posterminal.demo.core.ui.components.ConfirmDialog
 import by.vsdev.posterminal.demo.core.ui.components.InfoRow
 import by.vsdev.posterminal.demo.core.ui.components.SectionTitle
+import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
+import by.vsdev.posterminal.demo.feature.mdm.R
 import by.vsdev.posterminal.demo.feature.mdm.admin.PosDeviceAdminReceiver
 import org.koin.androidx.compose.koinViewModel
 
@@ -47,22 +53,58 @@ fun SettingsScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val kioskActive by viewModel.kioskActive.collectAsStateWithLifecycle()
+    val adminActive by viewModel.adminActive.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    var adminActive by remember { mutableStateOf(isAdminActive(context)) }
-    val adminLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        adminActive = isAdminActive(context)
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { snackbar.showSnackbar(it.toMessage(context)) }
     }
+
+    val adminLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        viewModel.refreshAdminState()
+    }
+
+    SettingsContent(
+        state = state,
+        kioskActive = kioskActive,
+        adminActive = adminActive,
+        snackbar = snackbar,
+        onBack = onBack,
+        onEnableAdmin = { adminLauncher.launch(addAdminIntent(context)) },
+        onSyncNow = viewModel::syncNow,
+        onFactoryReset = viewModel::logout,
+        modifier = modifier,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsContent(
+    state: EnrollmentUiState,
+    kioskActive: Boolean,
+    adminActive: Boolean,
+    snackbar: SnackbarHostState,
+    onBack: () -> Unit,
+    onEnableAdmin: () -> Unit,
+    onSyncNow: () -> Unit,
+    onFactoryReset: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var confirmReset by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.settings_back),
+                        )
                     }
                 },
             )
@@ -76,40 +118,36 @@ fun SettingsScreen(
         ) {
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
-                    SectionTitle("Device")
-                    InfoRow("Device ID", state.deviceId)
-                    InfoRow("Name", state.name)
-                    InfoRow("Enrolled", if (state.enrolled) "yes" else "no")
-                    InfoRow("Device Admin", if (adminActive) "active" else "inactive")
-                    InfoRow("Kiosk (pinning)", if (kioskActive) "on" else "off")
+                    SectionTitle(stringResource(R.string.settings_section_device))
+                    InfoRow(stringResource(R.string.settings_device_id), state.deviceId)
+                    InfoRow(stringResource(R.string.settings_name), state.name)
+                    InfoRow(stringResource(R.string.settings_enrolled), yesNo(state.enrolled))
+                    InfoRow(stringResource(R.string.settings_device_admin), activeInactive(adminActive))
+                    InfoRow(stringResource(R.string.settings_kiosk), onOff(kioskActive))
                 }
             }
 
             Spacer(Modifier.height(12.dp))
             AppButton(
-                text = if (adminActive) "Device Admin enabled" else "Enable Device Admin",
-                onClick = { adminLauncher.launch(addAdminIntent(context)) },
+                text = stringResource(
+                    if (adminActive) R.string.settings_admin_enabled else R.string.settings_enable_admin,
+                ),
+                onClick = onEnableAdmin,
                 variant = AppButtonVariant.Outlined,
                 enabled = !adminActive,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(8.dp))
             AppButton(
-                text = "Sync now",
-                onClick = viewModel::syncNow,
+                text = stringResource(R.string.settings_sync_now),
+                onClick = onSyncNow,
                 variant = AppButtonVariant.Tonal,
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            state.status?.let {
-                Spacer(Modifier.height(12.dp))
-                Text(it, style = MaterialTheme.typography.bodyMedium)
-            }
-
-            // Factory reset pinned to the bottom of the screen.
             Spacer(Modifier.weight(1f))
             AppButton(
-                text = "Factory reset",
+                text = stringResource(R.string.settings_factory_reset),
                 onClick = { confirmReset = true },
                 variant = AppButtonVariant.Danger,
                 enabled = !state.busy,
@@ -120,28 +158,53 @@ fun SettingsScreen(
 
     if (confirmReset) {
         ConfirmDialog(
-            title = "Factory reset this terminal?",
-            text = "It will be removed from the admin console and reset to the registration screen.",
-            confirmLabel = "Factory reset",
+            title = stringResource(R.string.settings_reset_title),
+            text = stringResource(R.string.settings_reset_text),
+            confirmLabel = stringResource(R.string.settings_factory_reset),
             danger = true,
             onConfirm = {
                 confirmReset = false
-                viewModel.logout()
+                onFactoryReset()
             },
             onDismiss = { confirmReset = false },
         )
     }
 }
 
-private fun isAdminActive(context: Context): Boolean {
-    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    return dpm.isAdminActive(PosDeviceAdminReceiver.componentName(context))
-}
+@Composable
+private fun yesNo(value: Boolean) =
+    stringResource(if (value) R.string.settings_yes else R.string.settings_no)
+
+@Composable
+private fun activeInactive(value: Boolean) =
+    stringResource(if (value) R.string.settings_active else R.string.settings_inactive)
+
+@Composable
+private fun onOff(value: Boolean) =
+    stringResource(if (value) R.string.settings_on else R.string.settings_off)
 
 private fun addAdminIntent(context: Context): Intent =
     Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
         .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, PosDeviceAdminReceiver.componentName(context))
         .putExtra(
             DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-            "Required so the admin can remotely lock this POS terminal.",
+            context.getString(R.string.settings_admin_explanation),
         )
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun SettingsPreview() {
+    PosTheme {
+        SettingsContent(
+            state = EnrollmentUiState(deviceId = "pos-1a2b3c4d", name = "Front Till", enrolled = true),
+            kioskActive = false,
+            adminActive = true,
+            snackbar = remember { SnackbarHostState() },
+            onBack = {},
+            onEnableAdmin = {},
+            onSyncNow = {},
+            onFactoryReset = {},
+        )
+    }
+}
