@@ -1,90 +1,41 @@
 package by.vsdev.posterminal.demo
 
-import android.os.SystemClock
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import by.vsdev.posterminal.demo.core.data.prefs.SettingsRepository
-import by.vsdev.posterminal.demo.feature.mdm.MdmController
 import by.vsdev.posterminal.demo.feature.mdm.MdmMessageHost
 import by.vsdev.posterminal.demo.feature.mdm.enrollment.RegistrationScreen
 import by.vsdev.posterminal.demo.feature.mdm.enrollment.SettingsScreen
 import by.vsdev.posterminal.demo.feature.offer.OfferScreen
 import by.vsdev.posterminal.demo.feature.pos.PosScreen
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
-import org.koin.compose.koinInject
-
-object Routes {
-    const val REGISTRATION = "registration"
-    const val POS = "pos"
-    const val SETTINGS = "settings"
-    const val OFFER = "offer"
-}
-
-private const val KIOSK_IDLE_MILLIS = 10_000L
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AppNavHost(
-    settings: SettingsRepository = koinInject(),
-    controller: MdmController = koinInject(),
-) {
-    val enrolled by produceState<Boolean?>(initialValue = null) {
-        settings.enrolled.collect { value = it }
-    }
+fun AppNavHost(appViewModel: AppViewModel = koinViewModel()) {
+    val startRoute by appViewModel.startRoute.collectAsStateWithLifecycle()
 
-    val resolved = enrolled ?: run {
+    val route = startRoute ?: run {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         return
     }
 
     val nav = rememberNavController()
-    val kioskActive by controller.kioskActive.collectAsStateWithLifecycle()
-    var lastInteraction by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
 
-    // Enrolment changes: enroll → POS; logout / wipe (auto un-enroll on 404) → Registration.
-    LaunchedEffect(nav) {
-        settings.enrolled.drop(1).distinctUntilChanged().collect { isEnrolled ->
-            val target = if (isEnrolled) Routes.POS else Routes.REGISTRATION
-            if (nav.currentDestination?.route != target) {
-                nav.navigate(target) {
-                    popUpTo(nav.graph.id) { inclusive = true }
-                    launchSingleTop = true
-                }
-            }
-        }
-    }
-
-    // Kiosk screensaver: while kiosk is on, show the Offer attract loop after 10 s of inactivity.
-    LaunchedEffect(kioskActive) {
-        if (!kioskActive) {
-            if (nav.currentDestination?.route == Routes.OFFER) nav.popBackStack()
-            return@LaunchedEffect
-        }
-        lastInteraction = SystemClock.elapsedRealtime()
-        while (true) {
-            delay(1_000)
-            val idle = SystemClock.elapsedRealtime() - lastInteraction
-            if (idle >= KIOSK_IDLE_MILLIS && nav.currentDestination?.route == Routes.POS) {
-                nav.navigate(Routes.OFFER) { launchSingleTop = true }
-            }
-        }
+    LaunchedEffect(Unit) {
+        appViewModel.navEvents.collect { event -> nav.handle(event) }
     }
 
     Box(
@@ -95,21 +46,36 @@ fun AppNavHost(
                 awaitPointerEventScope {
                     while (true) {
                         awaitPointerEvent(PointerEventPass.Initial)
-                        lastInteraction = SystemClock.elapsedRealtime()
+                        appViewModel.onUserInteraction()
                     }
                 }
             },
     ) {
-        NavHost(
-            navController = nav,
-            startDestination = if (resolved) Routes.POS else Routes.REGISTRATION,
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            composable(Routes.REGISTRATION) { RegistrationScreen() }
-            composable(Routes.POS) { PosScreen(onOpenSettings = { nav.navigate(Routes.SETTINGS) }) }
-            composable(Routes.SETTINGS) { SettingsScreen(onBack = { nav.popBackStack() }) }
-            composable(Routes.OFFER) { OfferScreen(onExit = { nav.popBackStack() }) }
+        NavHost(navController = nav, startDestination = route, modifier = Modifier.fillMaxSize()) {
+            composable<AppRoute.Registration> { RegistrationScreen() }
+            composable<AppRoute.Pos> { PosScreen(onOpenSettings = { nav.navigate(AppRoute.Settings) }) }
+            composable<AppRoute.Settings> { SettingsScreen(onBack = { nav.popBackStack() }) }
+            composable<AppRoute.Offer> { OfferScreen(onExit = { nav.popBackStack() }) }
         }
         MdmMessageHost()
+    }
+}
+
+private fun NavController.handle(event: AppNavEvent) {
+    when (event) {
+        is AppNavEvent.Reset -> navigate(event.route) {
+            popUpTo(graph.id) { inclusive = true }
+            launchSingleTop = true
+        }
+
+        AppNavEvent.ShowOffer -> {
+            val onPos = currentDestination?.hasRoute(AppRoute.Pos::class) == true
+            if (onPos) navigate(AppRoute.Offer) { launchSingleTop = true }
+        }
+
+        AppNavEvent.DismissOffer -> {
+            val onOffer = currentDestination?.hasRoute(AppRoute.Offer::class) == true
+            if (onOffer) popBackStack()
+        }
     }
 }
