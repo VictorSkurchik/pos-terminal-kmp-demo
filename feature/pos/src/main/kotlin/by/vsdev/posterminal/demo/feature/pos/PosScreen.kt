@@ -15,11 +15,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.vsdev.posterminal.demo.core.ui.components.CartPanel
 import by.vsdev.posterminal.demo.core.ui.components.MenuGrid
 import by.vsdev.posterminal.demo.core.ui.components.PosTopBar
+import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
+import by.vsdev.posterminal.demo.domain.model.CartLine
+import by.vsdev.posterminal.demo.domain.model.Product
+import by.vsdev.posterminal.demo.domain.util.formatCents
 import org.koin.androidx.compose.koinViewModel
 
 private val CartHeight = 260.dp
@@ -31,27 +38,56 @@ fun PosScreen(
     viewModel: PosViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val receipt by viewModel.receiptMessage.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
-    LaunchedEffect(receipt) {
-        receipt?.let {
-            snackbar.showSnackbar(it)
-            viewModel.consumeReceipt()
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is PosEvent.PaymentCompleted ->
+                    snackbar.showSnackbar(context.getString(R.string.pos_paid, formatCents(event.amountCents)))
+            }
         }
     }
 
+    PosContent(
+        state = state,
+        snackbar = snackbar,
+        onOpenSettings = onOpenSettings,
+        onAdd = viewModel::add,
+        onIncrement = viewModel::increment,
+        onDecrement = viewModel::decrement,
+        onPay = viewModel::checkout,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun PosContent(
+    state: PosUiState,
+    snackbar: SnackbarHostState,
+    onOpenSettings: () -> Unit,
+    onAdd: (Product) -> Unit,
+    onIncrement: (String) -> Unit,
+    onDecrement: (String) -> Unit,
+    onPay: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = { PosTopBar(title = "Restaurant POS", onSettingsClick = onOpenSettings) },
+        topBar = { PosTopBar(title = stringResource(R.string.pos_title), onSettingsClick = onOpenSettings) },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
-        Box(Modifier.padding(padding).fillMaxSize()) {
+        Box(
+            Modifier
+                .padding(padding)
+                .fillMaxSize(),
+        ) {
             // Menu spans topbar → bottom, scrolling behind the cart; bottom padding = cart height
             // so the last items can be scrolled fully into view above the cart.
             MenuGrid(
                 products = state.products,
-                onAdd = viewModel::add,
+                onAdd = onAdd,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = CartHeight + 24.dp),
             )
@@ -59,12 +95,41 @@ fun PosScreen(
                 items = state.cart,
                 totalCents = state.totalCents,
                 payEnabled = !state.payBlocked && state.totalCents > 0,
-                payLabel = if (state.payBlocked) "Payment restricted by admin" else "Pay",
-                onIncrement = viewModel::increment,
-                onDecrement = viewModel::decrement,
-                onPay = viewModel::checkout,
-                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(CartHeight),
+                payLabel = stringResource(
+                    if (state.payBlocked) R.string.pos_payment_restricted else R.string.pos_pay,
+                ),
+                onIncrement = onIncrement,
+                onDecrement = onDecrement,
+                onPay = onPay,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(CartHeight),
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PosPreview() {
+    val products = listOf(
+        Product("sku-espresso", "Espresso", 300),
+        Product("sku-latte", "Latte", 450),
+    )
+    PosTheme {
+        PosContent(
+            state = PosUiState(
+                products = products,
+                cart = listOf(CartLine("sku-latte", "Latte", 450, 2)),
+                totalCents = 900,
+            ),
+            snackbar = remember { SnackbarHostState() },
+            onOpenSettings = {},
+            onAdd = {},
+            onIncrement = {},
+            onDecrement = {},
+            onPay = {},
+        )
     }
 }

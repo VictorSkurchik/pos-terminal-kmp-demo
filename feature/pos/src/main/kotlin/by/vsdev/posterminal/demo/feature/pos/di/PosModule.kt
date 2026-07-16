@@ -6,5 +6,5 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val posModule: Module = module {
-    viewModel { PosViewModel(get(), get()) }
+    viewModel { PosViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }
