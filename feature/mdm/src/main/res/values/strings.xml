@@ -1,4 +1,54 @@
 <resources>
     <string name="device_admin_label">POS MDM Agent</string>
     <string name="device_admin_description">Allows remote lock of this POS terminal.</string>
+
+    <!-- Registration -->
+    <string name="reg_brand_emoji">🍽</string>
+    <string name="reg_title">Restaurant POS</string>
+    <string name="reg_subtitle">Set up this terminal by scanning the enrollment QR from the admin console.</string>
+    <string name="reg_scan_qr">Scan QR to register</string>
+    <string name="reg_register_manually">Register manually</string>
+    <string name="reg_cancel">Cancel</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_section_device">Device</string>
+    <string name="settings_device_id">Device ID</string>
+    <string name="settings_name">Name</string>
+    <string name="settings_enrolled">Enrolled</string>
+    <string name="settings_device_admin">Device Admin</string>
+    <string name="settings_kiosk">Kiosk (pinning)</string>
+    <string name="settings_yes">yes</string>
+    <string name="settings_no">no</string>
+    <string name="settings_active">active</string>
+    <string name="settings_inactive">inactive</string>
+    <string name="settings_on">on</string>
+    <string name="settings_off">off</string>
+    <string name="settings_admin_enabled">Device Admin enabled</string>
+    <string name="settings_enable_admin">Enable Device Admin</string>
+    <string name="settings_sync_now">Sync now</string>
+    <string name="settings_factory_reset">Factory reset</string>
+    <string name="settings_reset_title">Factory reset this terminal?</string>
+    <string name="settings_reset_text">It will be removed from the admin console and reset to the registration screen.</string>
+    <string name="settings_admin_explanation">Required so the admin can remotely lock this POS terminal.</string>
+
+    <!-- Admin message dialog -->
+    <string name="msg_from_admin">Message from admin</string>
+    <string name="msg_ok">OK</string>
+
+    <!-- Enrollment events -->
+    <string name="enroll_success">Enrolled as %1$s ✓</string>
+    <string name="enroll_invalid_qr">Invalid QR payload</string>
+    <string name="enroll_sync_requested">Sync requested</string>
+    <string name="enroll_logged_out">Terminal reset</string>
+
+    <!-- Domain errors -->
+    <string name="err_network">No connection — check the network and retry.</string>
+    <string name="err_timeout">The request timed out. Try again.</string>
+    <string name="err_unauthorized">Not authorized.</string>
+    <string name="err_not_found">Device not found on the backend.</string>
+    <string name="err_server">Server error (%1$d). Try again later.</string>
+    <string name="err_serialization">Unexpected response from the server.</string>
+    <string name="err_unknown">Something went wrong. Try again.</string>
 </resources>

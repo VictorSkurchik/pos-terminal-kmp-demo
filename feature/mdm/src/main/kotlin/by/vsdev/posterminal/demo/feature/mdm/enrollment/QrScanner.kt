@@ -29,11 +29,10 @@ fun QrScanner(
     onResult: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
     val scanner = remember { BarcodeScanning.getClient() }
-    var handled = remember { booleanArrayOf(false) }
+    val handled = remember { booleanArrayOf(false) }
 
     AndroidView(
         modifier = modifier.fillMaxSize(),

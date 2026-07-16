@@ -7,17 +7,18 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import by.vsdev.posterminal.demo.domain.service.MdmScheduler
 import java.util.concurrent.TimeUnit
 
-/** Schedules the background agent via WorkManager (no FCM). */
-class MdmScheduler(private val context: Context) {
+/** WorkManager-backed [MdmScheduler] (no FCM). */
+class WorkManagerMdmScheduler(private val context: Context) : MdmScheduler {
 
     private val constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
     /** Periodic polling. WorkManager minimum is 15 minutes. */
-    fun schedulePeriodic() {
+    override fun schedulePeriodic() {
         val request = PeriodicWorkRequestBuilder<MdmSyncWorker>(15, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .build()
@@ -26,18 +27,18 @@ class MdmScheduler(private val context: Context) {
     }
 
     /** Immediate run (the "Sync now" button in the demo). */
-    fun triggerOnce() {
+    override fun triggerOnce() {
         val request = OneTimeWorkRequestBuilder<MdmSyncWorker>()
             .setConstraints(constraints)
             .build()
         WorkManager.getInstance(context).enqueue(request)
     }
 
-    fun cancel() {
+    override fun cancel() {
         WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_NAME)
     }
 
-    companion object {
-        private const val UNIQUE_NAME = "mdm-sync"
+    private companion object {
+        const val UNIQUE_NAME = "mdm-sync"
     }
 }
