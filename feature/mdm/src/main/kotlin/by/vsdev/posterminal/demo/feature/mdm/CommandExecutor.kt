@@ -14,10 +14,10 @@ import by.vsdev.posterminal.demo.feature.mdm.domain.service.MdmCommandExecutor
 import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.LogoutUseCase
 
 /**
- * Executes remote MDM commands. LOCK/KIOSK use real Android APIs; SHOW_MESSAGE and RESTRICT_APP
- * affect only the POS app. Kiosk/restrict state is persisted so it can be reported to the admin via
- * heartbeat. WIPE is the admin-initiated reset. Every command also surfaces a notification, so the
- * service and the WorkManager fallback behave identically.
+ * Executes remote MDM commands. LOCK/KIOSK use real Android APIs; SHOW_MESSAGE affects only the POS
+ * app. Kiosk state is persisted so it can be reported to the admin via heartbeat. WIPE is the
+ * admin-initiated reset. Every command also surfaces a notification, so the service and the
+ * WorkManager fallback behave identically.
  */
 class CommandExecutor(
     private val context: Context,
@@ -49,10 +49,6 @@ class CommandExecutor(
 
             CommandType.SHOW_MESSAGE ->
                 controller.showMessage(command.payload ?: "Message from admin")
-
-            // Emulation: payload "off" removes the restriction, otherwise it blocks the "Pay" button.
-            CommandType.RESTRICT_APP ->
-                policy.setRestrictPayment(!command.payload.equals("off", ignoreCase = true))
 
             // Admin reset: un-enroll + delete from backend → the app returns to Registration.
             CommandType.WIPE -> logout()

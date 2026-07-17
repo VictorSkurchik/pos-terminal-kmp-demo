@@ -24,7 +24,7 @@ import by.vsdev.posterminal.demo.feature.pos.presentation.PosScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AppNavHost(appViewModel: AppViewModel = koinViewModel()) {
+fun AppNavHost(language: String, onToggleLanguage: () -> Unit, appViewModel: AppViewModel = koinViewModel()) {
     val state by appViewModel.state.collectAsStateWithLifecycle()
 
     val route = state.startRoute ?: run {
@@ -53,7 +53,13 @@ fun AppNavHost(appViewModel: AppViewModel = koinViewModel()) {
     ) {
         NavHost(navController = nav, startDestination = route, modifier = Modifier.fillMaxSize()) {
             composable<AppRoute.Registration> { RegistrationScreen() }
-            composable<AppRoute.Pos> { PosScreen(onOpenSettings = { nav.navigate(AppRoute.Settings) }) }
+            composable<AppRoute.Pos> {
+                PosScreen(
+                    onOpenSettings = { nav.navigate(AppRoute.Settings) },
+                    language = language,
+                    onToggleLanguage = onToggleLanguage,
+                )
+            }
             composable<AppRoute.Settings> { SettingsScreen(onBack = { nav.popBackStack() }) }
             composable<AppRoute.Offer> { OfferScreen(onExit = { nav.popBackStack() }) }
         }

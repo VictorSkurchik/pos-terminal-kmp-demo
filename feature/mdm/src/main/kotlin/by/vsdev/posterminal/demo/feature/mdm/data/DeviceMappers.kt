@@ -23,7 +23,6 @@ fun WireDevice.toDomain(): Device = Device(
     status = status.toDomain(),
     batteryLevel = batteryLevel,
     kioskActive = kioskActive,
-    restrictPayment = restrictPayment,
 )
 
 fun WireCommand.toDomain(): DeviceCommand = DeviceCommand(
@@ -47,7 +46,6 @@ fun WireCommandType.toDomain(): CommandType = when (this) {
     WireCommandType.KIOSK_ON -> CommandType.KIOSK_ON
     WireCommandType.KIOSK_OFF -> CommandType.KIOSK_OFF
     WireCommandType.SHOW_MESSAGE -> CommandType.SHOW_MESSAGE
-    WireCommandType.RESTRICT_APP -> CommandType.RESTRICT_APP
     WireCommandType.WIPE -> CommandType.WIPE
 }
 

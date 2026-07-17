@@ -41,22 +41,16 @@ class FakeSettingsRepository(var serverUrlValue: String = "https://example.test"
 }
 
 class FakeDevicePolicy : DevicePolicy {
-    val restrictState = MutableStateFlow(false)
     val kioskState = MutableStateFlow(false)
     var reset = false
 
-    override val restrictPayment: Flow<Boolean> = restrictState
     override val kioskActive: Flow<Boolean> = kioskState
 
-    override suspend fun setRestrictPayment(value: Boolean) {
-        restrictState.value = value
-    }
     override suspend fun setKioskActive(value: Boolean) {
         kioskState.value = value
     }
     override suspend fun reset() {
         reset = true
-        restrictState.value = false
         kioskState.value = false
     }
 }

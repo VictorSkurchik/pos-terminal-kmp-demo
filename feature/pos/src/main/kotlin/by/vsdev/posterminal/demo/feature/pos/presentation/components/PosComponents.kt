@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -138,10 +139,19 @@ fun CartLineRow(item: CartLine, onDecrement: () -> Unit, onIncrement: () -> Unit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PosTopBar(title: String, onSettingsClick: () -> Unit, modifier: Modifier = Modifier) {
+fun PosTopBar(
+    title: String,
+    onSettingsClick: () -> Unit,
+    language: String,
+    onToggleLanguage: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     TopAppBar(
         title = { Text(title, fontWeight = FontWeight.Bold) },
         actions = {
+            TextButton(onClick = onToggleLanguage) {
+                Text(language, fontWeight = FontWeight.Bold)
+            }
             IconButton(onClick = onSettingsClick) {
                 Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.ui_settings))
             }

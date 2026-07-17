@@ -1,6 +1,5 @@
 package by.vsdev.posterminal.demo.feature.pos.domain.usecase
 
-import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
 import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
 import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
 import by.vsdev.posterminal.demo.feature.pos.domain.repository.CartRepository
@@ -11,11 +10,6 @@ import kotlinx.coroutines.flow.first
 /** Streams the current cart lines. */
 class ObserveCartUseCase(private val cart: CartRepository) {
     operator fun invoke(): Flow<List<CartLine>> = cart.lines
-}
-
-/** Streams whether the admin has restricted payment (the "Pay" button). */
-class ObservePaymentRestrictedUseCase(private val policy: DevicePolicy) {
-    operator fun invoke(): Flow<Boolean> = policy.restrictPayment
 }
 
 /** The (static) POS catalog. */

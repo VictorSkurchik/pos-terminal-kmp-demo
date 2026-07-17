@@ -19,11 +19,6 @@ sealed interface SettingsIntent : UiIntent {
     data object SyncNow : SettingsIntent
 
     data object FactoryReset : SettingsIntent
-
-    data object EnableAdmin : SettingsIntent
-
-    /** The user returned from the system Device-Admin screen; re-read the status. */
-    data object AdminResult : SettingsIntent
 }
 
 sealed interface SettingsSideEffect : UiSideEffect {
@@ -32,7 +27,4 @@ sealed interface SettingsSideEffect : UiSideEffect {
     data object LoggedOut : SettingsSideEffect
 
     data class Failed(val error: DomainError) : SettingsSideEffect
-
-    /** Ask the UI to launch the system "enable Device Admin" screen. */
-    data object LaunchDeviceAdmin : SettingsSideEffect
 }

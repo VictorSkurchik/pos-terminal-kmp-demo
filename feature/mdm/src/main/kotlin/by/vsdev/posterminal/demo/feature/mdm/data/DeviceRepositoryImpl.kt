@@ -49,7 +49,6 @@ class DeviceRepositoryImpl(
                     timestamp = time.nowMillis(),
                     batteryLevel = batteryLevel,
                     kioskActive = policy.kioskActive.first(),
-                    restrictPayment = policy.restrictPayment.first(),
                 ),
             ).toDomain()
         }
@@ -86,6 +85,9 @@ class DeviceRepositoryImpl(
         try {
             block()
         } catch (e: DeviceNotFoundException) {
+            // Never resurrect a device that was intentionally un-enrolled (WIPE / factory reset):
+            // otherwise the ack right after a WIPE would 404 and silently re-register it.
+            if (!settings.enrolled.first()) throw e
             api.register(
                 RegisterRequest(
                     deviceId = settings.deviceId(),

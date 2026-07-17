@@ -1,0 +1,5 @@
+<resources>
+    <string name="pos_title">TPV Restaurante</string>
+    <string name="pos_pay">Pagar</string>
+    <string name="pos_paid">Pagado %1$s (demo)</string>
+</resources>

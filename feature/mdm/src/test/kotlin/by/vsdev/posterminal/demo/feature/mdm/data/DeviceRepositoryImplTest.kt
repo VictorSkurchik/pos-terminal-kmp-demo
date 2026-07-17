@@ -92,7 +92,7 @@ class DeviceRepositoryImplTest {
     private fun deviceJson(id: String = "pos-test01") =
         """
         {"id":"$id","name":"POS Terminal","lastSeenAt":0,
-         "status":"ONLINE","kioskActive":false,"restrictPayment":false}
+         "status":"ONLINE","kioskActive":false}
         """.trimIndent()
 
     private class FakeSettings : SettingsRepository {
@@ -107,9 +107,7 @@ class DeviceRepositoryImplTest {
     }
 
     private class FakeDevicePolicy : DevicePolicy {
-        override val restrictPayment: Flow<Boolean> = MutableStateFlow(false)
         override val kioskActive: Flow<Boolean> = MutableStateFlow(false)
-        override suspend fun setRestrictPayment(value: Boolean) = Unit
         override suspend fun setKioskActive(value: Boolean) = Unit
         override suspend fun reset() = Unit
     }

@@ -63,16 +63,6 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `EnableAdmin asks the UI to launch the admin screen`() = runTest(dispatcher) {
-        val vm = viewModel()
-        vm.sideEffect.test {
-            vm.onIntent(SettingsIntent.EnableAdmin)
-            advanceUntilIdle()
-            assertEquals(SettingsSideEffect.LaunchDeviceAdmin, awaitItem())
-        }
-    }
-
-    @Test
     fun `FactoryReset success emits LoggedOut`() = runTest(dispatcher) {
         coEvery { logout() } returns AppResult.Success(Unit)
         val vm = viewModel()

@@ -19,5 +19,4 @@ data class Device(
     val batteryLevel: Int? = null,
     val enrollmentToken: String? = null,
     val kioskActive: Boolean = false,
-    val restrictPayment: Boolean = false,
 )

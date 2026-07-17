@@ -43,8 +43,6 @@ class SettingsViewModel(
             }
 
             SettingsIntent.FactoryReset -> factoryReset()
-            SettingsIntent.EnableAdmin -> postSideEffect(SettingsSideEffect.LaunchDeviceAdmin)
-            SettingsIntent.AdminResult -> setState { copy(adminActive = deviceAdmin.isAdminActive()) }
         }
     }
 

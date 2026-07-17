@@ -98,9 +98,6 @@ export default function App() {
               <span className={"badge " + (d.kioskActive ? "on" : "")}>
                 Kiosk: {d.kioskActive ? "on" : "off"}
               </span>
-              <span className={"badge " + (d.restrictPayment ? "warn" : "")}>
-                Payment: {d.restrictPayment ? "restricted" : "allowed"}
-              </span>
             </div>
 
             <div className="group">
@@ -116,14 +113,6 @@ export default function App() {
               <span className="glabel">Message</span>
               <div className="buttons">
                 <button onClick={() => send(d.id, "SHOW_MESSAGE", message)}>Send message</button>
-              </div>
-            </div>
-
-            <div className="group">
-              <span className="glabel">Payment</span>
-              <div className="buttons">
-                <button onClick={() => send(d.id, "RESTRICT_APP", "on")}>Restrict payment</button>
-                <button onClick={() => send(d.id, "RESTRICT_APP", "off")}>Allow payment</button>
               </div>
             </div>
 

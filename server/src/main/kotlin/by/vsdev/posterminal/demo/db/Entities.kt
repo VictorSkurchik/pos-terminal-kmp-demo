@@ -14,7 +14,6 @@ data class DeviceEntity(
     val batteryLevel: Int?,
     val enrollmentToken: String? = null,
     val kioskActive: Boolean = false,
-    val restrictPayment: Boolean = false,
 )
 
 @Entity(
