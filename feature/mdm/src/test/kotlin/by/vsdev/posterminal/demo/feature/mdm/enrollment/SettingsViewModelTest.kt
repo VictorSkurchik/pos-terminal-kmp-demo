@@ -50,8 +50,7 @@ class SettingsViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() =
-        SettingsViewModel(syncNow, logout, settings, deviceAdmin, observeEnrollment, observeKiosk)
+    private fun viewModel() = SettingsViewModel(syncNow, logout, settings, deviceAdmin, observeEnrollment, observeKiosk)
 
     @Test
     fun `SyncNow emits SyncRequested`() = runTest(dispatcher) {

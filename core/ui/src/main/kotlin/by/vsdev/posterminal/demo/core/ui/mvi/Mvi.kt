@@ -29,9 +29,7 @@ interface UiSideEffect
  * Subclasses reduce domain streams and intents into state with [setState] and fire effects with
  * [postSideEffect].
  */
-abstract class MviViewModel<S : UiState, I : UiIntent, E : UiSideEffect>(
-    initialState: S,
-) : ViewModel() {
+abstract class MviViewModel<S : UiState, I : UiIntent, E : UiSideEffect>(initialState: S) : ViewModel() {
 
     private val _state = MutableStateFlow(initialState)
     val state: StateFlow<S> = _state.asStateFlow()

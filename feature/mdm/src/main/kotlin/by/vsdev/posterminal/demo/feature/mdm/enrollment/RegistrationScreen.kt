@@ -46,10 +46,7 @@ import org.koin.androidx.compose.koinViewModel
  * console (or a manual fallback). On success `enrolled` flips true and AppNavHost routes to POS.
  */
 @Composable
-fun RegistrationScreen(
-    modifier: Modifier = Modifier,
-    viewModel: RegistrationViewModel = koinViewModel(),
-) {
+fun RegistrationScreen(modifier: Modifier = Modifier, viewModel: RegistrationViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current

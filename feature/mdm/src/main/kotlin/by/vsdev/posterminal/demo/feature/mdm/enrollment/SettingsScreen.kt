@@ -45,11 +45,7 @@ import by.vsdev.posterminal.demo.feature.mdm.admin.PosDeviceAdminReceiver
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SettingsScreen(
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel = koinViewModel(),
-) {
+fun SettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: SettingsViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -166,24 +162,21 @@ private fun SettingsContent(
 }
 
 @Composable
-private fun yesNo(value: Boolean) =
-    stringResource(if (value) R.string.settings_yes else R.string.settings_no)
+private fun yesNo(value: Boolean) = stringResource(if (value) R.string.settings_yes else R.string.settings_no)
 
 @Composable
 private fun activeInactive(value: Boolean) =
     stringResource(if (value) R.string.settings_active else R.string.settings_inactive)
 
 @Composable
-private fun onOff(value: Boolean) =
-    stringResource(if (value) R.string.settings_on else R.string.settings_off)
+private fun onOff(value: Boolean) = stringResource(if (value) R.string.settings_on else R.string.settings_off)
 
-private fun addAdminIntent(context: Context): Intent =
-    Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-        .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, PosDeviceAdminReceiver.componentName(context))
-        .putExtra(
-            DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-            context.getString(R.string.settings_admin_explanation),
-        )
+private fun addAdminIntent(context: Context): Intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, PosDeviceAdminReceiver.componentName(context))
+    .putExtra(
+        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+        context.getString(R.string.settings_admin_explanation),
+    )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview

@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -26,10 +25,7 @@ import java.util.concurrent.Executors
  * first recognized QR (subsequent calls are ignored via the [handled] flag).
  */
 @Composable
-fun QrScanner(
-    onResult: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun QrScanner(onResult: (String) -> Unit, modifier: Modifier = Modifier) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
     val scanner = remember { BarcodeScanning.getClient() }

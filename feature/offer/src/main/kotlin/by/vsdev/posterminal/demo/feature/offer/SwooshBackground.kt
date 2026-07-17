@@ -16,11 +16,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  * needs no asset.
  */
 @Composable
-fun SwooshBackground(
-    color: Color,
-    modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit,
-) {
+fun SwooshBackground(color: Color, modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Box(
         modifier = modifier
             .fillMaxSize()
