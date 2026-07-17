@@ -4,13 +4,19 @@ import android.content.Context
 import by.vsdev.posterminal.demo.domain.result.DomainError
 import by.vsdev.posterminal.demo.feature.mdm.R
 
-/** Maps a semantic [EnrollmentEvent] to user-facing, localized text (kept out of the ViewModel). */
-fun EnrollmentEvent.toMessage(context: Context): String = when (this) {
-    is EnrollmentEvent.Enrolled -> context.getString(R.string.enroll_success, deviceId)
-    EnrollmentEvent.InvalidQr -> context.getString(R.string.enroll_invalid_qr)
-    EnrollmentEvent.SyncRequested -> context.getString(R.string.enroll_sync_requested)
-    EnrollmentEvent.LoggedOut -> context.getString(R.string.enroll_logged_out)
-    is EnrollmentEvent.Failed -> error.toMessage(context)
+/** Maps registration side effects to user-facing, localized text (kept out of the ViewModel). */
+fun RegistrationSideEffect.toMessage(context: Context): String = when (this) {
+    is RegistrationSideEffect.Enrolled -> context.getString(R.string.enroll_success, deviceId)
+    RegistrationSideEffect.InvalidQr -> context.getString(R.string.enroll_invalid_qr)
+    is RegistrationSideEffect.Failed -> error.toMessage(context)
+}
+
+/** Maps settings side effects to localized text. [SettingsSideEffect.LaunchDeviceAdmin] has no text. */
+fun SettingsSideEffect.toMessage(context: Context): String = when (this) {
+    SettingsSideEffect.SyncRequested -> context.getString(R.string.enroll_sync_requested)
+    SettingsSideEffect.LoggedOut -> context.getString(R.string.enroll_logged_out)
+    is SettingsSideEffect.Failed -> error.toMessage(context)
+    SettingsSideEffect.LaunchDeviceAdmin -> ""
 }
 
 fun DomainError.toMessage(context: Context): String = when (this) {

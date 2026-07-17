@@ -48,31 +48,29 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun RegistrationScreen(
     modifier: Modifier = Modifier,
-    viewModel: EnrollmentViewModel = koinViewModel(),
+    viewModel: RegistrationViewModel = koinViewModel(),
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.events.collect { snackbar.showSnackbar(it.toMessage(context)) }
+        viewModel.sideEffect.collect { snackbar.showSnackbar(it.toMessage(context)) }
     }
 
     RegistrationContent(
         state = state,
         snackbar = snackbar,
-        onScan = viewModel::enrollWithToken,
-        onManual = viewModel::enroll,
+        onIntent = viewModel::onIntent,
         modifier = modifier,
     )
 }
 
 @Composable
 private fun RegistrationContent(
-    state: EnrollmentUiState,
+    state: RegistrationUiState,
     snackbar: SnackbarHostState,
-    onScan: (String) -> Unit,
-    onManual: () -> Unit,
+    onIntent: (RegistrationIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -86,7 +84,7 @@ private fun RegistrationContent(
             QrScanner(
                 onResult = { payload ->
                     showScanner = false
-                    onScan(payload)
+                    onIntent(RegistrationIntent.RegisterWithToken(payload))
                 },
                 modifier = Modifier.fillMaxSize(),
             )
@@ -147,7 +145,7 @@ private fun RegistrationContent(
             )
 
             TextButton(
-                onClick = onManual,
+                onClick = { onIntent(RegistrationIntent.RegisterManually) },
                 enabled = !state.busy,
                 modifier = Modifier.padding(top = 8.dp),
             ) { Text(stringResource(R.string.reg_register_manually)) }
@@ -168,10 +166,9 @@ private fun RegistrationContent(
 private fun RegistrationPreview() {
     PosTheme {
         RegistrationContent(
-            state = EnrollmentUiState(deviceId = "pos-1a2b3c4d", name = "Front Till"),
+            state = RegistrationUiState(deviceId = "pos-1a2b3c4d", name = "Front Till"),
             snackbar = remember { SnackbarHostState() },
-            onScan = {},
-            onManual = {},
+            onIntent = {},
         )
     }
 }

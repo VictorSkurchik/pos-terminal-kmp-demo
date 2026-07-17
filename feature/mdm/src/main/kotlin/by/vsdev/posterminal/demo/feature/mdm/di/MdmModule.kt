@@ -7,7 +7,8 @@ import by.vsdev.posterminal.demo.domain.service.MdmScheduler
 import by.vsdev.posterminal.demo.feature.mdm.CommandExecutor
 import by.vsdev.posterminal.demo.feature.mdm.MdmController
 import by.vsdev.posterminal.demo.feature.mdm.admin.DeviceAdminRepositoryImpl
-import by.vsdev.posterminal.demo.feature.mdm.enrollment.EnrollmentViewModel
+import by.vsdev.posterminal.demo.feature.mdm.enrollment.RegistrationViewModel
+import by.vsdev.posterminal.demo.feature.mdm.enrollment.SettingsViewModel
 import by.vsdev.posterminal.demo.feature.mdm.work.MdmSyncWorker
 import by.vsdev.posterminal.demo.feature.mdm.work.WorkManagerMdmScheduler
 import org.koin.android.ext.koin.androidContext
@@ -22,6 +23,7 @@ val mdmModule: Module = module {
     single<MdmScheduler> { WorkManagerMdmScheduler(androidContext()) }
     single<DeviceAdminRepository> { DeviceAdminRepositoryImpl(androidContext()) }
     single<MdmCommandExecutor> { CommandExecutor(androidContext(), get(), get(), get(), get()) }
-    viewModel { EnrollmentViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { RegistrationViewModel(get(), get(), get()) }
+    viewModel { SettingsViewModel(get(), get(), get(), get(), get(), get()) }
     worker { MdmSyncWorker(get(), get(), get(), get()) }
 }

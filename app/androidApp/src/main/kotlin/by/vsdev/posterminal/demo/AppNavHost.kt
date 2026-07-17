@@ -25,9 +25,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavHost(appViewModel: AppViewModel = koinViewModel()) {
-    val startRoute by appViewModel.startRoute.collectAsStateWithLifecycle()
+    val state by appViewModel.state.collectAsStateWithLifecycle()
 
-    val route = startRoute ?: run {
+    val route = state.startRoute ?: run {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         return
     }
@@ -35,7 +35,7 @@ fun AppNavHost(appViewModel: AppViewModel = koinViewModel()) {
     val nav = rememberNavController()
 
     LaunchedEffect(Unit) {
-        appViewModel.navEvents.collect { event -> nav.handle(event) }
+        appViewModel.sideEffect.collect { effect -> nav.handle(effect) }
     }
 
     Box(
@@ -46,7 +46,7 @@ fun AppNavHost(appViewModel: AppViewModel = koinViewModel()) {
                 awaitPointerEventScope {
                     while (true) {
                         awaitPointerEvent(PointerEventPass.Initial)
-                        appViewModel.onUserInteraction()
+                        appViewModel.onIntent(AppIntent.UserInteracted)
                     }
                 }
             },
@@ -61,19 +61,19 @@ fun AppNavHost(appViewModel: AppViewModel = koinViewModel()) {
     }
 }
 
-private fun NavController.handle(event: AppNavEvent) {
-    when (event) {
-        is AppNavEvent.Reset -> navigate(event.route) {
+private fun NavController.handle(effect: AppSideEffect) {
+    when (effect) {
+        is AppSideEffect.Reset -> navigate(effect.route) {
             popUpTo(graph.id) { inclusive = true }
             launchSingleTop = true
         }
 
-        AppNavEvent.ShowOffer -> {
+        AppSideEffect.ShowOffer -> {
             val onPos = currentDestination?.hasRoute(AppRoute.Pos::class) == true
             if (onPos) navigate(AppRoute.Offer) { launchSingleTop = true }
         }
 
-        AppNavEvent.DismissOffer -> {
+        AppSideEffect.DismissOffer -> {
             val onOffer = currentDestination?.hasRoute(AppRoute.Offer::class) == true
             if (onOffer) popBackStack()
         }

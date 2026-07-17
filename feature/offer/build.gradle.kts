@@ -10,4 +10,8 @@ android {
 
 dependencies {
     implementation(projects.core.ui)
+
+    implementation(libs.androidx.lifecycle.viewmodelCompose)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidxCompose)
 }

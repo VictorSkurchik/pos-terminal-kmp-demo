@@ -37,15 +37,15 @@ fun PosScreen(
     modifier: Modifier = Modifier,
     viewModel: PosViewModel = koinViewModel(),
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is PosEvent.PaymentCompleted ->
-                    snackbar.showSnackbar(context.getString(R.string.pos_paid, formatCents(event.amountCents)))
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                is PosSideEffect.PaymentCompleted ->
+                    snackbar.showSnackbar(context.getString(R.string.pos_paid, formatCents(effect.amountCents)))
             }
         }
     }
@@ -54,10 +54,7 @@ fun PosScreen(
         state = state,
         snackbar = snackbar,
         onOpenSettings = onOpenSettings,
-        onAdd = viewModel::add,
-        onIncrement = viewModel::increment,
-        onDecrement = viewModel::decrement,
-        onPay = viewModel::checkout,
+        onIntent = viewModel::onIntent,
         modifier = modifier,
     )
 }
@@ -67,10 +64,7 @@ private fun PosContent(
     state: PosUiState,
     snackbar: SnackbarHostState,
     onOpenSettings: () -> Unit,
-    onAdd: (Product) -> Unit,
-    onIncrement: (String) -> Unit,
-    onDecrement: (String) -> Unit,
-    onPay: () -> Unit,
+    onIntent: (PosIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -87,7 +81,7 @@ private fun PosContent(
             // so the last items can be scrolled fully into view above the cart.
             MenuGrid(
                 products = state.products,
-                onAdd = onAdd,
+                onAdd = { onIntent(PosIntent.AddToCart(it)) },
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = CartHeight + 24.dp),
             )
@@ -98,9 +92,9 @@ private fun PosContent(
                 payLabel = stringResource(
                     if (state.payBlocked) R.string.pos_payment_restricted else R.string.pos_pay,
                 ),
-                onIncrement = onIncrement,
-                onDecrement = onDecrement,
-                onPay = onPay,
+                onIncrement = { onIntent(PosIntent.Increment(it)) },
+                onDecrement = { onIntent(PosIntent.Decrement(it)) },
+                onPay = { onIntent(PosIntent.Checkout) },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -126,10 +120,7 @@ private fun PosPreview() {
             ),
             snackbar = remember { SnackbarHostState() },
             onOpenSettings = {},
-            onAdd = {},
-            onIncrement = {},
-            onDecrement = {},
-            onPay = {},
+            onIntent = {},
         )
     }
 }

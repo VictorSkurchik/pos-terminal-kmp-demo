@@ -54,15 +54,15 @@ class PosViewModelTest {
 
     @Test
     fun `initial state exposes the catalog`() {
-        assertEquals(catalog, viewModel().uiState.value.products)
+        assertEquals(catalog, viewModel().state.value.products)
     }
 
     @Test
-    fun `adding an item updates the cart total`() = runTest(dispatcher) {
+    fun `AddToCart intent updates the cart total`() = runTest(dispatcher) {
         val vm = viewModel()
-        vm.uiState.test {
+        vm.state.test {
             awaitItem() // initial (empty cart)
-            vm.add(catalog.first())
+            vm.onIntent(PosIntent.AddToCart(catalog.first()))
             advanceUntilIdle()
             val state = awaitItem()
             assertEquals(1, state.cart.size)
@@ -71,13 +71,13 @@ class PosViewModelTest {
     }
 
     @Test
-    fun `checkout emits PaymentCompleted with the cart total`() = runTest(dispatcher) {
+    fun `Checkout intent emits PaymentCompleted with the cart total`() = runTest(dispatcher) {
         val vm = viewModel()
         cart.setLines(listOf(CartLine("sku-latte", "Latte", 450, 2)))
-        vm.events.test {
-            vm.checkout()
+        vm.sideEffect.test {
+            vm.onIntent(PosIntent.Checkout)
             advanceUntilIdle()
-            assertEquals(PosEvent.PaymentCompleted(900), awaitItem())
+            assertEquals(PosSideEffect.PaymentCompleted(900), awaitItem())
         }
     }
 
