@@ -18,6 +18,10 @@ kotlin {
 
 dependencies {
     api(projects.core)
+
+    implementation(platform(libs.ktor.bom))
+    implementation(platform(libs.kotlinx.coroutines.bom))
+
     implementation(libs.logback)
     implementation(libs.kotlinx.coroutines.core)
 

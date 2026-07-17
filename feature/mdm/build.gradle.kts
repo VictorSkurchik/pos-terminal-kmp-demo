@@ -12,6 +12,9 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.ui)
 
+    implementation(platform(libs.koin.bom))
+    implementation(platform(libs.kotlinx.coroutines.bom))
+
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.viewmodelCompose)
     implementation(libs.androidx.work.runtime)

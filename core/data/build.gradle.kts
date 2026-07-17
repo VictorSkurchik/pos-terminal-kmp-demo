@@ -12,6 +12,11 @@ dependencies {
     api(projects.core)
     api(projects.core.domain)
 
+    // BOMs — version alignment for Ktor, Koin and coroutines (testImplementation inherits these).
+    implementation(platform(libs.ktor.bom))
+    implementation(platform(libs.koin.bom))
+    implementation(platform(libs.kotlinx.coroutines.bom))
+
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
 

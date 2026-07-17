@@ -27,6 +27,8 @@ dependencies {
     implementation(projects.feature.mdm)
     implementation(projects.feature.offer)
 
+    implementation(platform(libs.koin.bom))
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.compose.ui)
     implementation(libs.androidx.lifecycle.viewmodelCompose)

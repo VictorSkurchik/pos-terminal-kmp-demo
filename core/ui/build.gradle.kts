@@ -11,6 +11,9 @@ android {
 dependencies {
     api(projects.core.domain)
 
+    // api so the Coil version constraint is exported to modules that consume core:ui's api(coil).
+    api(platform(libs.coil.bom))
+
     api(libs.compose.runtime)
     api(libs.compose.foundation)
     api(libs.compose.material3)
