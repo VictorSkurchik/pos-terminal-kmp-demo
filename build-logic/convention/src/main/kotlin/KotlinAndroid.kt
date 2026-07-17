@@ -13,7 +13,7 @@ internal fun Project.configureAndroidCommon(commonExtension: CommonExtension) {
     commonExtension.compileSdk = libs.intVersion("android-compileSdk")
     extensions.configure<KotlinAndroidProjectExtension> {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.fromTarget(libs.findVersion("jdk").get().requiredVersion))
         }
     }
 }

@@ -45,11 +45,19 @@ the typed `DomainError` taxonomy (`Network`, `Timeout`, `Unauthorized`, `NotFoun
 `Serialization`, `Unknown`) at the IO boundary, and **re-throws `CancellationException`** so structured
 concurrency is never broken. Nothing is swallowed silently; background failures are logged.
 
-### UI state & events
-Each screen has one immutable `…UiState` exposed as `StateFlow`, collected with
-`collectAsStateWithLifecycle()`. One-shot effects (a paid receipt, an admin message, an enrollment
-result) are **semantic events** on a `Channel`/`Flow` — e.g. `PosEvent.PaymentCompleted(amountCents)` —
-that the screen maps to localized strings. ViewModels hold **no user-facing strings**; all live in
+### Presentation (MVI)
+The presentation layer is **MVI** with a shared base in `:core:ui` —
+`MviViewModel<S : UiState, I : UiIntent, E : UiSideEffect>` (`core/ui/.../mvi/Mvi.kt`) enforcing a
+unidirectional flow: one immutable `S : UiState` exposed as `StateFlow` (reduced via `setState`),
+a single `onIntent(intent: I)` entry point for all user/system actions, and one-shot `E : UiSideEffect`s
+delivered exactly once through a `Channel` (`postSideEffect`). Each feature declares its
+`…Contract` (State/Intent/SideEffect) — e.g. `RegistrationContract`, `SettingsContract`, plus
+`PosViewModel`, `OfferViewModel`, and the app-level `AppViewModel`.
+
+Screens are stateless: they collect `state` with `collectAsStateWithLifecycle()` and forward user
+actions through `onIntent`. Side effects (a paid receipt, an admin message, an enrollment result,
+launching a system intent) are **semantic** — e.g. `PosEvent.PaymentCompleted(amountCents)` — and the
+screen maps them to localized strings. ViewModels hold **no user-facing strings**; all live in
 `strings.xml`.
 
 ### Navigation
@@ -69,5 +77,7 @@ use cases and ViewModels run on fakes (+ Turbine), `DeviceRepositoryImpl` agains
 
 ## Build & tooling
 Convention plugins in `build-logic/` remove per-module duplication; ktlint + detekt + Android Lint run in
-CI. Three flavors (`dev`/`staging`/`prod`) carry environment config; `release` is minified (R8) and signed.
+CI. The JDK toolchain is single-sourced from the version catalog (`jdk`) and consumed by every module and
+convention plugin; grouped dependencies (Ktor/Koin/Coil/coroutines) are aligned via version-catalog BOMs.
+Three flavors (`dev`/`staging`/`prod`) carry environment config; `release` is minified (R8) and signed.
 See `CONTRIBUTING.md` for commit conventions and local commands.

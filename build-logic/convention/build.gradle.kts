@@ -4,10 +4,10 @@ plugins {
 
 group = "by.vsdev.posterminal.buildlogic"
 
-// Convention plugins run on JDK 17 (same baseline as the modules they configure).
+// Convention plugins run on the same JDK baseline (catalog `jdk`) as the modules they configure.
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(libs.versions.jdk.get().toInt())
     }
 }
 
