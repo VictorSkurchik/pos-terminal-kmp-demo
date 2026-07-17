@@ -44,36 +44,34 @@ import by.vsdev.posterminal.demo.feature.mdm.R
 import by.vsdev.posterminal.demo.feature.mdm.admin.PosDeviceAdminReceiver
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: EnrollmentViewModel = koinViewModel(),
+    viewModel: SettingsViewModel = koinViewModel(),
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val kioskActive by viewModel.kioskActive.collectAsStateWithLifecycle()
-    val adminActive by viewModel.adminActive.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { snackbar.showSnackbar(it.toMessage(context)) }
+    val adminLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        viewModel.onIntent(SettingsIntent.AdminResult)
     }
 
-    val adminLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        viewModel.refreshAdminState()
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                SettingsSideEffect.LaunchDeviceAdmin -> adminLauncher.launch(addAdminIntent(context))
+                else -> snackbar.showSnackbar(effect.toMessage(context))
+            }
+        }
     }
 
     SettingsContent(
         state = state,
-        kioskActive = kioskActive,
-        adminActive = adminActive,
         snackbar = snackbar,
         onBack = onBack,
-        onEnableAdmin = { adminLauncher.launch(addAdminIntent(context)) },
-        onSyncNow = viewModel::syncNow,
-        onFactoryReset = viewModel::logout,
+        onIntent = viewModel::onIntent,
         modifier = modifier,
     )
 }
@@ -81,14 +79,10 @@ fun SettingsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsContent(
-    state: EnrollmentUiState,
-    kioskActive: Boolean,
-    adminActive: Boolean,
+    state: SettingsUiState,
     snackbar: SnackbarHostState,
     onBack: () -> Unit,
-    onEnableAdmin: () -> Unit,
-    onSyncNow: () -> Unit,
-    onFactoryReset: () -> Unit,
+    onIntent: (SettingsIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var confirmReset by remember { mutableStateOf(false) }
@@ -122,25 +116,25 @@ private fun SettingsContent(
                     InfoRow(stringResource(R.string.settings_device_id), state.deviceId)
                     InfoRow(stringResource(R.string.settings_name), state.name)
                     InfoRow(stringResource(R.string.settings_enrolled), yesNo(state.enrolled))
-                    InfoRow(stringResource(R.string.settings_device_admin), activeInactive(adminActive))
-                    InfoRow(stringResource(R.string.settings_kiosk), onOff(kioskActive))
+                    InfoRow(stringResource(R.string.settings_device_admin), activeInactive(state.adminActive))
+                    InfoRow(stringResource(R.string.settings_kiosk), onOff(state.kioskActive))
                 }
             }
 
             Spacer(Modifier.height(12.dp))
             AppButton(
                 text = stringResource(
-                    if (adminActive) R.string.settings_admin_enabled else R.string.settings_enable_admin,
+                    if (state.adminActive) R.string.settings_admin_enabled else R.string.settings_enable_admin,
                 ),
-                onClick = onEnableAdmin,
+                onClick = { onIntent(SettingsIntent.EnableAdmin) },
                 variant = AppButtonVariant.Outlined,
-                enabled = !adminActive,
+                enabled = !state.adminActive,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(8.dp))
             AppButton(
                 text = stringResource(R.string.settings_sync_now),
-                onClick = onSyncNow,
+                onClick = { onIntent(SettingsIntent.SyncNow) },
                 variant = AppButtonVariant.Tonal,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -164,7 +158,7 @@ private fun SettingsContent(
             danger = true,
             onConfirm = {
                 confirmReset = false
-                onFactoryReset()
+                onIntent(SettingsIntent.FactoryReset)
             },
             onDismiss = { confirmReset = false },
         )
@@ -197,14 +191,15 @@ private fun addAdminIntent(context: Context): Intent =
 private fun SettingsPreview() {
     PosTheme {
         SettingsContent(
-            state = EnrollmentUiState(deviceId = "pos-1a2b3c4d", name = "Front Till", enrolled = true),
-            kioskActive = false,
-            adminActive = true,
+            state = SettingsUiState(
+                deviceId = "pos-1a2b3c4d",
+                name = "Front Till",
+                enrolled = true,
+                adminActive = true,
+            ),
             snackbar = remember { SnackbarHostState() },
             onBack = {},
-            onEnableAdmin = {},
-            onSyncNow = {},
-            onFactoryReset = {},
+            onIntent = {},
         )
     }
 }
