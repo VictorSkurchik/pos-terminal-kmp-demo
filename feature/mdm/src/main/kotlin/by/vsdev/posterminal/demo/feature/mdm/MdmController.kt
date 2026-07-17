@@ -3,7 +3,7 @@ package by.vsdev.posterminal.demo.feature.mdm
 import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import by.vsdev.posterminal.demo.domain.service.KioskController
+import by.vsdev.posterminal.demo.feature.mdm.domain.service.KioskController
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

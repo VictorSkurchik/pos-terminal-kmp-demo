@@ -2,13 +2,13 @@ package by.vsdev.posterminal.demo.feature.mdm.enrollment
 
 import androidx.lifecycle.viewModelScope
 import by.vsdev.posterminal.demo.core.ui.mvi.MviViewModel
-import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.result.AppResult
-import by.vsdev.posterminal.demo.domain.service.DeviceAdminRepository
-import by.vsdev.posterminal.demo.domain.usecase.mdm.LogoutUseCase
-import by.vsdev.posterminal.demo.domain.usecase.mdm.ObserveEnrollmentUseCase
-import by.vsdev.posterminal.demo.domain.usecase.mdm.ObserveKioskStateUseCase
-import by.vsdev.posterminal.demo.domain.usecase.mdm.SyncNowUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.repository.SettingsRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.service.DeviceAdminRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.LogoutUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.ObserveEnrollmentUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.ObserveKioskStateUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.SyncNowUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

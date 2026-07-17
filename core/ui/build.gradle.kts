@@ -9,11 +9,7 @@ android {
 }
 
 dependencies {
-    api(projects.core.domain)
-
-    // api so the Coil version constraint is exported to modules that consume core:ui's api(coil).
-    api(platform(libs.coil.bom))
-
+    // Generic design system + MVI base — no domain, no feature-specific deps.
     api(libs.compose.runtime)
     api(libs.compose.foundation)
     api(libs.compose.material3)
@@ -21,7 +17,4 @@ dependencies {
     api(libs.compose.ui)
     api(libs.androidx.lifecycle.runtimeCompose)
     api(libs.androidx.lifecycle.viewmodelCompose)
-
-    api(libs.coil.compose)
-    implementation(libs.coil.networkOkhttp)
 }

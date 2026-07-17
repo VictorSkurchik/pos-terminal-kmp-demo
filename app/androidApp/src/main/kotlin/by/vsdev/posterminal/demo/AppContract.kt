@@ -5,9 +5,7 @@ import by.vsdev.posterminal.demo.core.ui.mvi.UiSideEffect
 import by.vsdev.posterminal.demo.core.ui.mvi.UiState
 
 /** MVI contract for the app shell (session + navigation). */
-data class AppUiState(
-    val startRoute: AppRoute? = null,
-) : UiState
+data class AppUiState(val startRoute: AppRoute? = null) : UiState
 
 sealed interface AppIntent : UiIntent {
     /** Any user touch — resets the kiosk idle timer. */

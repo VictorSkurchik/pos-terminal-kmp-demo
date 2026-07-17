@@ -2,8 +2,8 @@ package by.vsdev.posterminal.demo
 
 import androidx.lifecycle.viewModelScope
 import by.vsdev.posterminal.demo.core.ui.mvi.MviViewModel
-import by.vsdev.posterminal.demo.domain.usecase.mdm.ObserveEnrollmentUseCase
-import by.vsdev.posterminal.demo.domain.usecase.mdm.ObserveKioskStateUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.ObserveEnrollmentUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.ObserveKioskStateUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -19,10 +19,8 @@ import kotlinx.coroutines.withTimeoutOrNull
  * and the kiosk idle timer. State (start route) flows down; the UI sends [AppIntent.UserInteracted]
  * and performs the emitted [AppSideEffect] navigation.
  */
-class AppViewModel(
-    observeEnrollment: ObserveEnrollmentUseCase,
-    observeKiosk: ObserveKioskStateUseCase,
-) : MviViewModel<AppUiState, AppIntent, AppSideEffect>(AppUiState()) {
+class AppViewModel(observeEnrollment: ObserveEnrollmentUseCase, observeKiosk: ObserveKioskStateUseCase) :
+    MviViewModel<AppUiState, AppIntent, AppSideEffect>(AppUiState()) {
 
     // Conflated: only the most recent interaction matters for idle detection.
     private val interactions = Channel<Unit>(Channel.CONFLATED)

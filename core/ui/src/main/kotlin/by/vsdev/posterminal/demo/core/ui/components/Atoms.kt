@@ -3,33 +3,28 @@ package by.vsdev.posterminal.demo.core.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import by.vsdev.posterminal.demo.domain.util.formatCents
 
-// ---------- Atoms ----------
+// ---------- Atoms (generic design system) ----------
 
 enum class AppButtonVariant { Primary, Tonal, Outlined, Danger }
 
@@ -62,16 +57,6 @@ fun AppButton(
 }
 
 @Composable
-fun PriceText(
-    cents: Long,
-    modifier: Modifier = Modifier,
-    style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.titleMedium,
-    color: Color = MaterialTheme.colorScheme.onSurface,
-) {
-    Text(text = formatCents(cents), modifier = modifier, style = style, fontWeight = FontWeight.Bold, color = color)
-}
-
-@Composable
 fun SectionTitle(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
@@ -79,24 +64,6 @@ fun SectionTitle(text: String, modifier: Modifier = Modifier) {
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.SemiBold,
     )
-}
-
-@Composable
-fun QuantityStepper(
-    quantity: Int,
-    onDecrement: () -> Unit,
-    onIncrement: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        FilledTonalIconButton(onClick = onDecrement, modifier = Modifier.size(32.dp)) { Text("−") }
-        Text(
-            text = "$quantity",
-            modifier = Modifier.padding(horizontal = 12.dp),
-            style = MaterialTheme.typography.titleMedium,
-        )
-        FilledTonalIconButton(onClick = onIncrement, modifier = Modifier.size(32.dp)) { Text("+") }
-    }
 }
 
 @Composable

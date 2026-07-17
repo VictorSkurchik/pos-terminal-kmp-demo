@@ -29,10 +29,7 @@ val sampleOffers = listOf(
 )
 
 /** MVI contract for the Offer attract loop. */
-data class OfferUiState(
-    val offers: List<OfferSlide> = sampleOffers,
-    val index: Int = 0,
-) : UiState {
+data class OfferUiState(val offers: List<OfferSlide> = sampleOffers, val index: Int = 0) : UiState {
     val current: OfferSlide? get() = offers.getOrNull(index)
 }
 

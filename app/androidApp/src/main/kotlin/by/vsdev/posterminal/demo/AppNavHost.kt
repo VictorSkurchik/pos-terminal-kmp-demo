@@ -20,7 +20,7 @@ import by.vsdev.posterminal.demo.feature.mdm.MdmMessageHost
 import by.vsdev.posterminal.demo.feature.mdm.enrollment.RegistrationScreen
 import by.vsdev.posterminal.demo.feature.mdm.enrollment.SettingsScreen
 import by.vsdev.posterminal.demo.feature.offer.OfferScreen
-import by.vsdev.posterminal.demo.feature.pos.PosScreen
+import by.vsdev.posterminal.demo.feature.pos.presentation.PosScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

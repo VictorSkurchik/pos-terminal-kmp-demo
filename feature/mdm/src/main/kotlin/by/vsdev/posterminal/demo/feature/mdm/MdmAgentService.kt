@@ -14,10 +14,10 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.result.AppResult
-import by.vsdev.posterminal.demo.domain.usecase.mdm.SyncDeviceUseCase
 import by.vsdev.posterminal.demo.domain.util.DispatcherProvider
+import by.vsdev.posterminal.demo.feature.mdm.domain.repository.SettingsRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.SyncDeviceUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -35,7 +35,9 @@ import org.koin.core.component.inject
  * the notification per command lives in the executor, so this and the WorkManager fallback behave
  * identically. Failures are logged, never swallowed silently.
  */
-class MdmAgentService : Service(), KoinComponent {
+class MdmAgentService :
+    Service(),
+    KoinComponent {
 
     private val settings: SettingsRepository by inject()
     private val sync: SyncDeviceUseCase by inject()
@@ -96,13 +98,12 @@ class MdmAgentService : Service(), KoinComponent {
         }
     }
 
-    private fun statusNotification(): Notification =
-        NotificationCompat.Builder(this, STATUS_CHANNEL)
-            .setContentTitle("POS MDM agent")
-            .setContentText("Listening for remote commands")
-            .setSmallIcon(android.R.drawable.stat_notify_sync)
-            .setOngoing(true)
-            .build()
+    private fun statusNotification(): Notification = NotificationCompat.Builder(this, STATUS_CHANNEL)
+        .setContentTitle("POS MDM agent")
+        .setContentText("Listening for remote commands")
+        .setSmallIcon(android.R.drawable.stat_notify_sync)
+        .setOngoing(true)
+        .build()
 
     companion object {
         private const val TAG = "MdmAgentService"

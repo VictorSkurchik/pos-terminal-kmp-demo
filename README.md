@@ -58,31 +58,35 @@ Start destination is enrolment-driven: unenrolled → **Registration**, enrolled
 
 ## Module architecture
 
-Clean Architecture: a framework-free domain core, a data layer that implements its contracts, and thin
-feature/UI modules on top. Dependencies point **inwards only**. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+**Feature-owned vertical slices over a small shared kernel.** Each feature module contains its own
+`domain / data / presentation` (with its own Koin module); core holds only what is genuinely shared.
+Adding a feature = one self-contained module. Dependencies point **inwards only**.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ```
-:core            KMP (android, jvm, js) — @Serializable wire DTOs + PosApi/KtorPosApiClient.
-                 Transport-only; shared by :server and the Android data layer.
-:core:domain     Pure Kotlin/JVM — domain models, AppResult/DomainError, repository & service
-                 interfaces, DispatcherProvider, use cases. No Android/Ktor/Room/Koin.
+:core            KMP (android, jvm, js) — @Serializable wire DTOs + Device/Command wire models +
+                 PosApi/KtorPosApiClient + posJson. Transport-only; shared by :server and :feature:mdm.
+:core:domain     Pure Kotlin/JVM shared kernel — AppResult/DomainError, DispatcherProvider, Money,
+                 and the cross-cutting DevicePolicy port. No feature domain, no Android/Ktor/Room.
+:core:ui         Android library — generic Material3 design system (AppButton, ConfirmDialog,
+                 StoryProgressBar, …) + theme + the MVI base. No domain dependency.
 :server          Ktor (JVM) -> :core. Room + BundledSQLiteDriver (self-contained SQLite), REST API.
-:core:ui         Android library — Material3 theme + atomic-design components (AppButton, ProductCard,
-                 MenuGrid, CartPanel, StoryProgressBar, ConfirmDialog, …) with @Preview. Coil for images.
-:core:data       Android library — implements the domain repositories, maps DTO↔domain, Room
-                 (AndroidSQLiteDriver) + DataStore, Koin dataModule/domainModule.
-:feature:pos     Android feature — POS ViewModel over use cases + stateless screen.
-:feature:mdm     Android feature — MdmAgentService (foreground service), CommandExecutor,
-                 DeviceAdminReceiver, MdmSyncWorker, Registration + Settings screens, QR scanner.
-:feature:offer   Android feature — full-screen Offer attract loop (stories-style).
-:app:androidApp  Android app — Koin init, type-safe NavHost, AppViewModel (session/kiosk), flavors.
+:feature:pos     Vertical slice — domain (Product/Cart, repos, use cases), data (Room cart store,
+                 catalog, mappers), presentation (ViewModel + screen + POS-specific components).
+:feature:mdm     Vertical slice — domain (Device/Command, DeviceRepository, MdmServices, use cases),
+                 data (DeviceRepositoryImpl, enrollment settings, Ktor client, providers, device-admin,
+                 WorkManager, foreground service, QR scanner), presentation (Registration + Settings).
+:feature:offer   Presentation-only slice — full-screen Offer attract loop (stories-style).
+:app:androidApp  Android app — Koin init, type-safe NavHost, AppViewModel (session/kiosk), the
+                 DevicePolicy DataStore impl, flavors.
 build-logic/     Gradle convention plugins (android.library/application/compose, quality).
 web-admin/       React + TypeScript (Vite) — admin console. Not KMP; mirrors :core DTOs in TS.
 ```
 
-Shared reuse points: wire DTOs / `PosApi` (`:core`); domain models + use cases (`:core:domain`);
-one Room style on server (`BundledSQLiteDriver`) and Android (`AndroidSQLiteDriver`); one Koin DI style;
-one design system (`:core:ui`).
+Shared reuse points: wire DTOs / `PosApi` (`:core`, shared with `:server`); the kernel primitives and
+the `DevicePolicy` port (`:core:domain`); one generic design system + MVI base (`:core:ui`); one Koin
+DI style. Cross-cutting MDM policy flags (`restrictPayment`/`kioskActive`) flow through `DevicePolicy`
+so `pos` and `mdm` stay fully independent (no feature→feature dependency).
 
 ## Tech stack
 

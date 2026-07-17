@@ -34,11 +34,7 @@ private const val SLIDE_MILLIS = 5000
  * [OfferViewModel].
  */
 @Composable
-fun OfferScreen(
-    onExit: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: OfferViewModel = koinViewModel(),
-) {
+fun OfferScreen(onExit: () -> Unit, modifier: Modifier = Modifier, viewModel: OfferViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -53,11 +49,7 @@ fun OfferScreen(
 }
 
 @Composable
-private fun OfferContent(
-    state: OfferUiState,
-    onIntent: (OfferIntent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun OfferContent(state: OfferUiState, onIntent: (OfferIntent) -> Unit, modifier: Modifier = Modifier) {
     val slide = state.current ?: return
     val progress = remember { Animatable(0f) }
 

@@ -29,5 +29,4 @@ interface PosApi {
 }
 
 /** Thrown when a device-scoped call returns 404 — the backend no longer knows this device. */
-class DeviceNotFoundException(val deviceId: String) :
-    RuntimeException("Device not found on backend: $deviceId")
+class DeviceNotFoundException(val deviceId: String) : RuntimeException("Device not found on backend: $deviceId")

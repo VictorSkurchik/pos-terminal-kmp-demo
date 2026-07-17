@@ -29,11 +29,7 @@ import by.vsdev.posterminal.demo.core.ui.components.PillOutlineButton
  * a single "Tap to continue" CTA in the Sign Up style (always white, as in the design).
  */
 @Composable
-fun OnboardingSlide(
-    slide: OfferSlide,
-    onContinue: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun OnboardingSlide(slide: OfferSlide, onContinue: () -> Unit, modifier: Modifier = Modifier) {
     SwooshBackground(color = slide.background, modifier = modifier) {
         Image(
             painter = painterResource(slide.image),

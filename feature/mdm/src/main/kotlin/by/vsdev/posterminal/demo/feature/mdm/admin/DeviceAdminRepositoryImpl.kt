@@ -2,7 +2,7 @@ package by.vsdev.posterminal.demo.feature.mdm.admin
 
 import android.app.admin.DevicePolicyManager
 import android.content.Context
-import by.vsdev.posterminal.demo.domain.service.DeviceAdminRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.service.DeviceAdminRepository
 
 /** [DeviceAdminRepository] backed by [DevicePolicyManager] + [PosDeviceAdminReceiver]. */
 class DeviceAdminRepositoryImpl(private val context: Context) : DeviceAdminRepository {
