@@ -3,6 +3,8 @@ agp = "9.3.0"
 android-compileSdk = "37"
 android-minSdk = "24"
 android-targetSdk = "37"
+# Single source of truth for the JDK/JVM toolchain used by every module and convention plugin.
+jdk = "17"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.11.0"
 androidx-testExt = "1.3.0"

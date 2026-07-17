@@ -1,3 +1,4 @@
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -9,3 +10,7 @@ internal val Project.libs: VersionCatalog
 
 internal fun VersionCatalog.intVersion(alias: String): Int =
     findVersion(alias).get().requiredVersion.toInt()
+
+/** Single-sourced JDK version (`jdk` in the catalog) as a Gradle [JavaVersion]. */
+internal val Project.jdkJavaVersion: JavaVersion
+    get() = JavaVersion.toVersion(libs.intVersion("jdk"))
