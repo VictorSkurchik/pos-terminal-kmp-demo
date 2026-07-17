@@ -11,9 +11,9 @@
 
 Portfolio project: an Android **restaurant POS terminal** with a built-in **MDM agent**, plus a Ktor
 backend and a web admin console for remote device management. Demonstrates Kotlin Multiplatform, Jetpack
-Compose with a Material3 **atomic-design** component library, multi-module architecture, Navigation
-Compose, Ktor, Room (KMP), Koin, WorkManager, a foreground service, and Android Enterprise APIs
-(`DevicePolicyManager`, screen pinning).
+Compose with a Material3 **atomic-design** component library, an **MVI** presentation layer, multi-module
+**Clean Architecture**, Navigation Compose, Ktor, Room (KMP), Koin, WorkManager, a foreground service,
+and Android Enterprise APIs (`DevicePolicyManager`, screen pinning).
 
 ## Screenshots
 
@@ -86,14 +86,17 @@ one design system (`:core:ui`).
 
 ## Tech stack
 
-Kotlin 2.4, AGP 9 (built-in Kotlin), Compose Multiplatform 1.11 (Android) + type-safe Navigation
-Compose 2.9, Ktor 3.5 (client + server), Room 2.8 (KMP), Koin 4.2, WorkManager, Coil 3,
-kotlinx.serialization, Coroutines/Flow. Clean Architecture (domain use cases, `AppResult`/`DomainError`,
-MVVM with one-shot events). Web admin: React 19 + TypeScript + Vite; qrcode.react.
+Kotlin 2.4, AGP 9 (built-in Kotlin), compileSdk 37, Compose Multiplatform 1.11 (Android) + type-safe
+Navigation Compose 2.9, Ktor 3.5 (client + server), Room 2.8 (KMP), Koin 4.2, WorkManager, Coil 3,
+kotlinx.serialization, Coroutines/Flow. Clean Architecture (domain use cases, `AppResult`/`DomainError`)
+with an **MVI** presentation layer — a shared base in `:core:ui/mvi` (immutable `UiState` + `Intent` +
+one-shot events). Web admin: React 19 + TypeScript + Vite; qrcode.react.
 
-**Engineering:** Gradle convention plugins (`build-logic/`), ktlint + detekt + Android Lint in CI,
-unit tests (JUnit + coroutines-test + Turbine + Ktor MockEngine + Room-testing), Compose `@Preview`s,
-JVM 17. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+**Engineering:** Gradle convention plugins (`build-logic/`), a single-sourced JDK 17 toolchain
+(catalog `jdk`), version-catalog BOMs (Ktor/Koin/Coil/coroutines), ktlint + detekt + Android Lint in CI,
+unit tests (JUnit + coroutines-test + Turbine + Ktor MockEngine + Room-testing), Compose `@Preview`s.
+Advisory skill reports live in [docs/skill-reports/](docs/skill-reports/). See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Build variants
 
@@ -196,7 +199,8 @@ at runtime by the QR-scanned `serverUrl`; the web admin defaults in `web-admin/s
 via `VITE_SERVER_URL`).
 
 - **Backend → Render**: *New → Blueprint* on the repo. Render reads `render.yaml` and builds `Dockerfile`
-  (JDK 21 + Android SDK → Ktor fat jar); binds `$PORT`, provides HTTPS.
+  (JDK 21 base image + Android SDK 37 → Ktor fat jar; Gradle auto-provisions the JDK 17 toolchain via the
+  foojay resolver); binds `$PORT`, provides HTTPS.
 - **Web admin → Vercel**: import the repo, set **Root Directory = `web-admin`**; Vercel auto-detects Vite
   and auto-deploys on push. No secrets.
 - **CI** (`.github/workflows/ci.yml`): ktlint + detekt + Android Lint, unit tests across all modules,
