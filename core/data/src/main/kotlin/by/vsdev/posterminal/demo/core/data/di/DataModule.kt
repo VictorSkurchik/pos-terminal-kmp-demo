@@ -1,7 +1,6 @@
 package by.vsdev.posterminal.demo.core.data.di
 
 import by.vsdev.posterminal.demo.core.data.catalog.ProductRepositoryImpl
-import by.vsdev.posterminal.demo.core.data.dispatcher.DefaultDispatcherProvider
 import by.vsdev.posterminal.demo.core.data.enrollment.EnrollmentTokenParserImpl
 import by.vsdev.posterminal.demo.core.data.local.LocalDatabase
 import by.vsdev.posterminal.demo.core.data.local.createLocalDatabase
@@ -17,6 +16,7 @@ import by.vsdev.posterminal.demo.domain.repository.DeviceRepository
 import by.vsdev.posterminal.demo.domain.repository.ProductRepository
 import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.service.EnrollmentTokenParser
+import by.vsdev.posterminal.demo.domain.util.DefaultDispatcherProvider
 import by.vsdev.posterminal.demo.domain.util.DispatcherProvider
 import by.vsdev.posterminal.demo.network.KtorPosApiClient
 import by.vsdev.posterminal.demo.network.PosApi
