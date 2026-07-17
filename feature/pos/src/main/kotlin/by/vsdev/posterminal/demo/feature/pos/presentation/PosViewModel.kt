@@ -9,8 +9,6 @@ import by.vsdev.posterminal.demo.feature.pos.domain.usecase.DecrementCartItemUse
 import by.vsdev.posterminal.demo.feature.pos.domain.usecase.GetProductsUseCase
 import by.vsdev.posterminal.demo.feature.pos.domain.usecase.IncrementCartItemUseCase
 import by.vsdev.posterminal.demo.feature.pos.domain.usecase.ObserveCartUseCase
-import by.vsdev.posterminal.demo.feature.pos.domain.usecase.ObservePaymentRestrictedUseCase
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -18,7 +16,6 @@ import kotlinx.coroutines.launch
 class PosViewModel(
     getProducts: GetProductsUseCase,
     observeCart: ObserveCartUseCase,
-    observePaymentRestricted: ObservePaymentRestrictedUseCase,
     private val addToCart: AddToCartUseCase,
     private val incrementItem: IncrementCartItemUseCase,
     private val decrementItem: DecrementCartItemUseCase,
@@ -26,15 +23,9 @@ class PosViewModel(
 ) : MviViewModel<PosUiState, PosIntent, PosSideEffect>(PosUiState(products = getProducts())) {
 
     init {
-        combine(observeCart(), observePaymentRestricted()) { cart, restricted -> cart to restricted }
-            .onEach { (cart, restricted) ->
-                setState {
-                    copy(
-                        cart = cart,
-                        totalCents = cart.sumOf { it.lineTotalCents },
-                        payBlocked = restricted,
-                    )
-                }
+        observeCart()
+            .onEach { cart ->
+                setState { copy(cart = cart, totalCents = cart.sumOf { it.lineTotalCents }) }
             }
             .launchIn(viewModelScope)
     }

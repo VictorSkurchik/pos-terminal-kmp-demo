@@ -12,7 +12,6 @@ import by.vsdev.posterminal.demo.feature.pos.domain.usecase.DecrementCartItemUse
 import by.vsdev.posterminal.demo.feature.pos.domain.usecase.GetProductsUseCase
 import by.vsdev.posterminal.demo.feature.pos.domain.usecase.IncrementCartItemUseCase
 import by.vsdev.posterminal.demo.feature.pos.domain.usecase.ObserveCartUseCase
-import by.vsdev.posterminal.demo.feature.pos.domain.usecase.ObservePaymentRestrictedUseCase
 import by.vsdev.posterminal.demo.feature.pos.presentation.PosViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
@@ -29,14 +28,13 @@ val posModule: Module = module {
     single<ProductRepository> { ProductRepositoryImpl() }
     single<CartRepository> { CartRepositoryImpl(get()) }
 
-    // Use cases (ObservePaymentRestrictedUseCase reads the shared DevicePolicy)
+    // Use cases
     factory { ObserveCartUseCase(get()) }
-    factory { ObservePaymentRestrictedUseCase(get()) }
     factory { GetProductsUseCase(get()) }
     factory { AddToCartUseCase(get()) }
     factory { IncrementCartItemUseCase(get(), get()) }
     factory { DecrementCartItemUseCase(get()) }
     factory { CheckoutUseCase(get()) }
 
-    viewModel { PosViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { PosViewModel(get(), get(), get(), get(), get(), get()) }
 }

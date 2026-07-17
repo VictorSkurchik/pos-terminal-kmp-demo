@@ -11,7 +11,6 @@ data class PosUiState(
     val products: List<Product> = emptyList(),
     val cart: List<CartLine> = emptyList(),
     val totalCents: Long = 0,
-    val payBlocked: Boolean = false,
 ) : UiState
 
 sealed interface PosIntent : UiIntent {

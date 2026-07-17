@@ -8,7 +8,6 @@ export type CommandType =
   | "KIOSK_ON"
   | "KIOSK_OFF"
   | "SHOW_MESSAGE"
-  | "RESTRICT_APP"
   | "WIPE";
 
 export type DeviceStatus = "ONLINE" | "OFFLINE" | "LOCKED" | "KIOSK";
@@ -22,7 +21,6 @@ export interface Device {
   batteryLevel: number | null;
   enrollmentToken: string | null;
   kioskActive: boolean;
-  restrictPayment: boolean;
 }
 
 /** Payload encoded into the enrollment QR (matches EnrollmentToken in :core). */

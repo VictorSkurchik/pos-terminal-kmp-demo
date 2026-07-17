@@ -43,7 +43,6 @@ class DeviceRepository(db: AppDatabase) {
                 else -> DeviceStatus.ONLINE.name
             },
             kioskActive = request.kioskActive ?: existing.kioskActive,
-            restrictPayment = request.restrictPayment ?: existing.restrictPayment,
         )
         devices.upsert(updated)
         return updated.toModel()
@@ -97,7 +96,6 @@ private fun DeviceEntity.toModel() = Device(
     batteryLevel = batteryLevel,
     enrollmentToken = enrollmentToken,
     kioskActive = kioskActive,
-    restrictPayment = restrictPayment,
 )
 
 private fun CommandEntity.toModel() = DeviceCommand(

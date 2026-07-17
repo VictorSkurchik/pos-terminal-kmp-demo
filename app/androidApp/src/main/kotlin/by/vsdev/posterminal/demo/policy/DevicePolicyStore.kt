@@ -16,18 +16,11 @@ private val Context.devicePolicyStore: DataStore<Preferences> by preferencesData
 class DevicePolicyStore(private val context: Context) : DevicePolicy {
 
     private object Keys {
-        val RESTRICT_PAYMENT = booleanPreferencesKey("restrict_payment")
         val KIOSK_ACTIVE = booleanPreferencesKey("kiosk_active")
     }
 
-    override val restrictPayment: Flow<Boolean> =
-        context.devicePolicyStore.data.map { it[Keys.RESTRICT_PAYMENT] ?: false }
     override val kioskActive: Flow<Boolean> =
         context.devicePolicyStore.data.map { it[Keys.KIOSK_ACTIVE] ?: false }
-
-    override suspend fun setRestrictPayment(value: Boolean) {
-        context.devicePolicyStore.edit { it[Keys.RESTRICT_PAYMENT] = value }
-    }
 
     override suspend fun setKioskActive(value: Boolean) {
         context.devicePolicyStore.edit { it[Keys.KIOSK_ACTIVE] = value }

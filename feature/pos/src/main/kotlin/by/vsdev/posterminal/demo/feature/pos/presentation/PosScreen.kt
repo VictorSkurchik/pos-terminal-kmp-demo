@@ -85,10 +85,8 @@ private fun PosContent(
             CartPanel(
                 items = state.cart,
                 totalCents = state.totalCents,
-                payEnabled = !state.payBlocked && state.totalCents > 0,
-                payLabel = stringResource(
-                    if (state.payBlocked) R.string.pos_payment_restricted else R.string.pos_pay,
-                ),
+                payEnabled = state.totalCents > 0,
+                payLabel = stringResource(R.string.pos_pay),
                 onIncrement = { onIntent(PosIntent.Increment(it)) },
                 onDecrement = { onIntent(PosIntent.Decrement(it)) },
                 onPay = { onIntent(PosIntent.Checkout) },

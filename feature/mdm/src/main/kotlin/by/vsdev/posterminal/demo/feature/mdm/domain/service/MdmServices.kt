@@ -13,7 +13,7 @@ interface MdmScheduler {
     fun cancel()
 }
 
-/** Executes a single MDM command on the device (LOCK, KIOSK, SHOW_MESSAGE, RESTRICT_APP, WIPE). */
+/** Executes a single MDM command on the device (LOCK, KIOSK, SHOW_MESSAGE, WIPE). */
 interface MdmCommandExecutor {
     suspend fun execute(command: DeviceCommand)
 }
