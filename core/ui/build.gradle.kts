@@ -17,6 +17,7 @@ dependencies {
     api(libs.compose.materialIconsCore)
     api(libs.compose.ui)
     api(libs.androidx.lifecycle.runtimeCompose)
+    api(libs.androidx.lifecycle.viewmodelCompose)
 
     api(libs.coil.compose)
     implementation(libs.coil.networkOkhttp)
