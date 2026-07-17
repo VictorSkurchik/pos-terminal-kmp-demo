@@ -1,3 +1,6 @@
 <resources>
-    <string name="offer_tap_to_exit">tap to exit</string>
+    <string name="offer_tap_to_continue">Tap to continue</string>
+    <string name="offer_headline_1">I don\'t feel like cooking. Let\'s order food delivery.</string>
+    <string name="offer_headline_2">Donut worry, be happy and eat more donuts!</string>
+    <string name="offer_headline_3">Good music and good food makes me happy.</string>
 </resources>
