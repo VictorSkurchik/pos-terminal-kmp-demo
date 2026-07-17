@@ -8,10 +8,7 @@ import by.vsdev.posterminal.demo.domain.service.MdmCommandExecutor
  * One MDM sync cycle: send a heartbeat (best-effort), then pull, execute and acknowledge each
  * pending command. Used by both the foreground service and the WorkManager fallback.
  */
-class SyncDeviceUseCase(
-    private val device: DeviceRepository,
-    private val executor: MdmCommandExecutor,
-) {
+class SyncDeviceUseCase(private val device: DeviceRepository, private val executor: MdmCommandExecutor) {
     suspend operator fun invoke(batteryLevel: Int?): AppResult<Unit> {
         // Heartbeat failures are non-fatal — a transient network blip shouldn't stop command polling.
         device.heartbeat(batteryLevel)

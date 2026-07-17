@@ -1,7 +1,7 @@
-package by.vsdev.posterminal.demo.core.data.catalog
+package by.vsdev.posterminal.demo.feature.pos.data
 
-import by.vsdev.posterminal.demo.domain.model.Product
-import by.vsdev.posterminal.demo.domain.repository.ProductRepository
+import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
+import by.vsdev.posterminal.demo.feature.pos.domain.repository.ProductRepository
 
 /** Mock POS catalog (MVP — no server endpoint). Behind [ProductRepository] so it can be faked. */
 class ProductRepositoryImpl : ProductRepository {

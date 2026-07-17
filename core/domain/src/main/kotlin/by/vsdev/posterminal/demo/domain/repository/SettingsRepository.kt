@@ -2,7 +2,10 @@ package by.vsdev.posterminal.demo.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 
-/** Local enrollment state: stable id, enrollment status, backend URL. (Policy flags live in [by.vsdev.posterminal.demo.domain.policy.DevicePolicy].) */
+/**
+ * Local enrollment state: stable id, enrollment status, backend URL.
+ * Cross-cutting policy flags live in [by.vsdev.posterminal.demo.domain.policy.DevicePolicy].
+ */
 interface SettingsRepository {
     val enrolled: Flow<Boolean>
     val deviceName: Flow<String>

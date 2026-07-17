@@ -1,7 +1,7 @@
-package by.vsdev.posterminal.demo.domain.usecase.pos
+package by.vsdev.posterminal.demo.feature.pos.domain.usecase
 
-import by.vsdev.posterminal.demo.domain.fakes.FakeCartRepository
-import by.vsdev.posterminal.demo.domain.model.CartLine
+import by.vsdev.posterminal.demo.feature.pos.FakeCartRepository
+import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

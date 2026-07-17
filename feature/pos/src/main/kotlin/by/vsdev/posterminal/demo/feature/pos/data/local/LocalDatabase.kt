@@ -1,4 +1,4 @@
-package by.vsdev.posterminal.demo.core.data.local
+package by.vsdev.posterminal.demo.feature.pos.data.local
 
 import android.content.Context
 import androidx.room.Dao
@@ -14,12 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "cart_items")
-data class CartItemEntity(
-    @PrimaryKey val productId: String,
-    val name: String,
-    val priceCents: Long,
-    val quantity: Int,
-)
+data class CartItemEntity(@PrimaryKey val productId: String, val name: String, val priceCents: Long, val quantity: Int)
 
 @Dao
 interface CartDao {

@@ -1,15 +1,11 @@
 package by.vsdev.posterminal.demo.domain.fakes
 
-import by.vsdev.posterminal.demo.domain.model.CartLine
 import by.vsdev.posterminal.demo.domain.model.Device
 import by.vsdev.posterminal.demo.domain.model.DeviceCommand
 import by.vsdev.posterminal.demo.domain.model.DeviceStatus
 import by.vsdev.posterminal.demo.domain.model.EnrollmentToken
-import by.vsdev.posterminal.demo.domain.model.Product
 import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
-import by.vsdev.posterminal.demo.domain.repository.CartRepository
 import by.vsdev.posterminal.demo.domain.repository.DeviceRepository
-import by.vsdev.posterminal.demo.domain.repository.ProductRepository
 import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.result.AppResult
 import by.vsdev.posterminal.demo.domain.service.EnrollmentTokenParser
@@ -17,39 +13,7 @@ import by.vsdev.posterminal.demo.domain.service.MdmScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class FakeCartRepository(initial: List<CartLine> = emptyList()) : CartRepository {
-    private val state = MutableStateFlow(initial)
-    override val lines: Flow<List<CartLine>> = state
-    var cleared = false
-        private set
-
-    fun setLines(lines: List<CartLine>) {
-        state.value = lines
-    }
-
-    override suspend fun add(product: Product) {
-        state.value = state.value + CartLine(product.id, product.name, product.priceCents, 1)
-    }
-
-    override suspend fun decrement(productId: String) {
-        state.value = state.value.filterNot { it.productId == productId }
-    }
-
-    override suspend fun remove(productId: String) = decrement(productId)
-
-    override suspend fun clear() {
-        cleared = true
-        state.value = emptyList()
-    }
-}
-
-class FakeProductRepository(private val items: List<Product>) : ProductRepository {
-    override fun products(): List<Product> = items
-}
-
-class FakeSettingsRepository(
-    var serverUrlValue: String = "https://example.test",
-) : SettingsRepository {
+class FakeSettingsRepository(var serverUrlValue: String = "https://example.test") : SettingsRepository {
     val enrolledState = MutableStateFlow(false)
     val nameState = MutableStateFlow("POS Terminal")
     var cleared = false
@@ -84,8 +48,12 @@ class FakeDevicePolicy : DevicePolicy {
     override val restrictPayment: Flow<Boolean> = restrictState
     override val kioskActive: Flow<Boolean> = kioskState
 
-    override suspend fun setRestrictPayment(value: Boolean) { restrictState.value = value }
-    override suspend fun setKioskActive(value: Boolean) { kioskState.value = value }
+    override suspend fun setRestrictPayment(value: Boolean) {
+        restrictState.value = value
+    }
+    override suspend fun setKioskActive(value: Boolean) {
+        kioskState.value = value
+    }
     override suspend fun reset() {
         reset = true
         restrictState.value = false

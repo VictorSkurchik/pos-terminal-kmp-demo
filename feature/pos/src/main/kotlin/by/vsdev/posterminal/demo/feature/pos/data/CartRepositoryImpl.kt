@@ -1,11 +1,10 @@
-package by.vsdev.posterminal.demo.core.data.repo
+package by.vsdev.posterminal.demo.feature.pos.data
 
-import by.vsdev.posterminal.demo.core.data.local.CartDao
-import by.vsdev.posterminal.demo.core.data.local.CartItemEntity
-import by.vsdev.posterminal.demo.core.data.mapper.toDomain
-import by.vsdev.posterminal.demo.domain.model.CartLine
-import by.vsdev.posterminal.demo.domain.model.Product
-import by.vsdev.posterminal.demo.domain.repository.CartRepository
+import by.vsdev.posterminal.demo.feature.pos.data.local.CartDao
+import by.vsdev.posterminal.demo.feature.pos.data.local.CartItemEntity
+import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
+import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
+import by.vsdev.posterminal.demo.feature.pos.domain.repository.CartRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

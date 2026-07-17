@@ -7,6 +7,7 @@ import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.result.AppResult
 import by.vsdev.posterminal.demo.domain.result.DomainError
 import by.vsdev.posterminal.demo.network.KtorPosApiClient
+import by.vsdev.posterminal.demo.network.posJson
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandler
@@ -16,7 +17,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
-import by.vsdev.posterminal.demo.network.posJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -29,8 +29,12 @@ class DeviceRepositoryImplTest {
 
     private val settings = FakeSettings()
     private val policy = FakeDevicePolicy()
-    private val deviceInfo = object : DeviceInfoProvider { override val model = "Pixel-Test" }
-    private val time = object : TimeProvider { override fun nowMillis() = 42L }
+    private val deviceInfo = object : DeviceInfoProvider {
+        override val model = "Pixel-Test"
+    }
+    private val time = object : TimeProvider {
+        override fun nowMillis() = 42L
+    }
 
     private fun repo(handler: MockRequestHandler): DeviceRepositoryImpl {
         val client = HttpClient(MockEngine(handler)) {

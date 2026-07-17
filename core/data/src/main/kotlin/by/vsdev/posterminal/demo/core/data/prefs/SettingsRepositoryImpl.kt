@@ -21,10 +21,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
  * Local device state via DataStore: stable id, enrollment status, backend URL and MDM policy flags.
  * [defaultServerUrl] comes from the build flavor (BuildConfig.SERVER_URL).
  */
-class SettingsRepositoryImpl(
-    private val context: Context,
-    private val defaultServerUrl: String,
-) : SettingsRepository {
+class SettingsRepositoryImpl(private val context: Context, private val defaultServerUrl: String) : SettingsRepository {
 
     private object Keys {
         val DEVICE_ID = stringPreferencesKey("device_id")
@@ -66,7 +63,7 @@ class SettingsRepositoryImpl(
         context.dataStore.edit { it[Keys.DEVICE_NAME] = name }
     }
 
-    /** Clears enrollment but KEEPS the stable device id, so re-enrolment reuses it. (Policy flags are reset via DevicePolicy.) */
+    /** Clears enrollment but KEEPS the stable device id, so re-enrolment reuses it. */
     override suspend fun clearEnrollment() {
         context.dataStore.edit { prefs ->
             prefs.remove(Keys.ENROLLED)

@@ -1,15 +1,15 @@
-package by.vsdev.posterminal.demo.feature.pos
+package by.vsdev.posterminal.demo.feature.pos.presentation
 
 import androidx.lifecycle.viewModelScope
 import by.vsdev.posterminal.demo.core.ui.mvi.MviViewModel
-import by.vsdev.posterminal.demo.domain.usecase.pos.AddToCartUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.CheckoutResult
-import by.vsdev.posterminal.demo.domain.usecase.pos.CheckoutUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.DecrementCartItemUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.GetProductsUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.IncrementCartItemUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.ObserveCartUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.ObservePaymentRestrictedUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.AddToCartUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.CheckoutResult
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.CheckoutUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.DecrementCartItemUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.GetProductsUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.IncrementCartItemUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.ObserveCartUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.ObservePaymentRestrictedUseCase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

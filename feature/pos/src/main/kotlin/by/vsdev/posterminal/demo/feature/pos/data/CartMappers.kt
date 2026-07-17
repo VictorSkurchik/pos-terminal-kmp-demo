@@ -1,7 +1,7 @@
-package by.vsdev.posterminal.demo.core.data.mapper
+package by.vsdev.posterminal.demo.feature.pos.data
 
-import by.vsdev.posterminal.demo.core.data.local.CartItemEntity
-import by.vsdev.posterminal.demo.domain.model.CartLine
+import by.vsdev.posterminal.demo.feature.pos.data.local.CartItemEntity
+import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
 
 fun CartItemEntity.toDomain(): CartLine = CartLine(
     productId = productId,

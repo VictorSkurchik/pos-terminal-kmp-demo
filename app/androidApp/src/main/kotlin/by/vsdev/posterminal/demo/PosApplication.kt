@@ -4,10 +4,10 @@ import android.app.Application
 import by.vsdev.posterminal.demo.core.data.di.dataModule
 import by.vsdev.posterminal.demo.core.data.di.domainModule
 import by.vsdev.posterminal.demo.di.appModule
-import by.vsdev.posterminal.demo.domain.repository.CartRepository
 import by.vsdev.posterminal.demo.feature.mdm.di.mdmModule
 import by.vsdev.posterminal.demo.feature.offer.di.offerModule
 import by.vsdev.posterminal.demo.feature.pos.di.posModule
+import by.vsdev.posterminal.demo.feature.pos.domain.repository.CartRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

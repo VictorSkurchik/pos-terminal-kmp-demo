@@ -75,10 +75,7 @@ class SyncNowUseCase(private val scheduler: MdmScheduler) {
 }
 
 /** Logout / factory reset: cancel the agent, delete from backend, clear local enrollment. */
-class LogoutUseCase(
-    private val device: DeviceRepository,
-    private val scheduler: MdmScheduler,
-) {
+class LogoutUseCase(private val device: DeviceRepository, private val scheduler: MdmScheduler) {
     suspend operator fun invoke(): AppResult<Unit> {
         scheduler.cancel()
         return device.logout()

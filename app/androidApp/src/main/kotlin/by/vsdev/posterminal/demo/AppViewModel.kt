@@ -19,10 +19,8 @@ import kotlinx.coroutines.withTimeoutOrNull
  * and the kiosk idle timer. State (start route) flows down; the UI sends [AppIntent.UserInteracted]
  * and performs the emitted [AppSideEffect] navigation.
  */
-class AppViewModel(
-    observeEnrollment: ObserveEnrollmentUseCase,
-    observeKiosk: ObserveKioskStateUseCase,
-) : MviViewModel<AppUiState, AppIntent, AppSideEffect>(AppUiState()) {
+class AppViewModel(observeEnrollment: ObserveEnrollmentUseCase, observeKiosk: ObserveKioskStateUseCase) :
+    MviViewModel<AppUiState, AppIntent, AppSideEffect>(AppUiState()) {
 
     // Conflated: only the most recent interaction matters for idle detection.
     private val interactions = Channel<Unit>(Channel.CONFLATED)

@@ -1,4 +1,4 @@
-package by.vsdev.posterminal.demo.feature.pos
+package by.vsdev.posterminal.demo.feature.pos.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,23 +20,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import by.vsdev.posterminal.demo.core.ui.components.CartPanel
-import by.vsdev.posterminal.demo.core.ui.components.MenuGrid
-import by.vsdev.posterminal.demo.core.ui.components.PosTopBar
 import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
-import by.vsdev.posterminal.demo.domain.model.CartLine
-import by.vsdev.posterminal.demo.domain.model.Product
 import by.vsdev.posterminal.demo.domain.util.formatCents
+import by.vsdev.posterminal.demo.feature.pos.R
+import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
+import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
+import by.vsdev.posterminal.demo.feature.pos.presentation.components.CartPanel
+import by.vsdev.posterminal.demo.feature.pos.presentation.components.MenuGrid
+import by.vsdev.posterminal.demo.feature.pos.presentation.components.PosTopBar
 import org.koin.androidx.compose.koinViewModel
 
 private val CartHeight = 260.dp
 
 @Composable
-fun PosScreen(
-    onOpenSettings: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: PosViewModel = koinViewModel(),
-) {
+fun PosScreen(onOpenSettings: () -> Unit, modifier: Modifier = Modifier, viewModel: PosViewModel = koinViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current

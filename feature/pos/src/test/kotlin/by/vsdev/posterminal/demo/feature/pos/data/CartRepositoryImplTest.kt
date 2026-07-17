@@ -1,9 +1,9 @@
-package by.vsdev.posterminal.demo.core.data.repo
+package by.vsdev.posterminal.demo.feature.pos.data
 
 import app.cash.turbine.test
-import by.vsdev.posterminal.demo.core.data.local.CartDao
-import by.vsdev.posterminal.demo.core.data.local.CartItemEntity
-import by.vsdev.posterminal.demo.domain.model.Product
+import by.vsdev.posterminal.demo.feature.pos.data.local.CartDao
+import by.vsdev.posterminal.demo.feature.pos.data.local.CartItemEntity
+import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest

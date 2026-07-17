@@ -1,10 +1,10 @@
-package by.vsdev.posterminal.demo.feature.pos
+package by.vsdev.posterminal.demo.feature.pos.presentation
 
 import by.vsdev.posterminal.demo.core.ui.mvi.UiIntent
 import by.vsdev.posterminal.demo.core.ui.mvi.UiSideEffect
 import by.vsdev.posterminal.demo.core.ui.mvi.UiState
-import by.vsdev.posterminal.demo.domain.model.CartLine
-import by.vsdev.posterminal.demo.domain.model.Product
+import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
+import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
 
 /** MVI contract for the POS screen. */
 data class PosUiState(

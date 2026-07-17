@@ -1,18 +1,18 @@
-package by.vsdev.posterminal.demo.feature.pos
+package by.vsdev.posterminal.demo.feature.pos.presentation
 
 import app.cash.turbine.test
-import by.vsdev.posterminal.demo.domain.model.CartLine
-import by.vsdev.posterminal.demo.domain.model.Product
 import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
-import by.vsdev.posterminal.demo.domain.repository.CartRepository
-import by.vsdev.posterminal.demo.domain.repository.ProductRepository
-import by.vsdev.posterminal.demo.domain.usecase.pos.AddToCartUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.CheckoutUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.DecrementCartItemUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.GetProductsUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.IncrementCartItemUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.ObserveCartUseCase
-import by.vsdev.posterminal.demo.domain.usecase.pos.ObservePaymentRestrictedUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
+import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
+import by.vsdev.posterminal.demo.feature.pos.domain.repository.CartRepository
+import by.vsdev.posterminal.demo.feature.pos.domain.repository.ProductRepository
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.AddToCartUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.CheckoutUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.DecrementCartItemUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.GetProductsUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.IncrementCartItemUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.ObserveCartUseCase
+import by.vsdev.posterminal.demo.feature.pos.domain.usecase.ObservePaymentRestrictedUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -84,7 +84,9 @@ class PosViewModelTest {
     private class FakeCart(initial: List<CartLine> = emptyList()) : CartRepository {
         private val state = MutableStateFlow(initial)
         override val lines: Flow<List<CartLine>> = state
-        fun setLines(lines: List<CartLine>) { state.value = lines }
+        fun setLines(lines: List<CartLine>) {
+            state.value = lines
+        }
         override suspend fun add(product: Product) {
             state.value = state.value + CartLine(product.id, product.name, product.priceCents, 1)
         }
@@ -92,7 +94,9 @@ class PosViewModelTest {
             state.value = state.value.filterNot { it.productId == productId }
         }
         override suspend fun remove(productId: String) = decrement(productId)
-        override suspend fun clear() { state.value = emptyList() }
+        override suspend fun clear() {
+            state.value = emptyList()
+        }
     }
 
     private class FakeProducts(private val items: List<Product>) : ProductRepository {

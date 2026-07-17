@@ -1,10 +1,10 @@
-package by.vsdev.posterminal.demo.domain.usecase.pos
+package by.vsdev.posterminal.demo.feature.pos.domain.usecase
 
-import by.vsdev.posterminal.demo.domain.model.CartLine
-import by.vsdev.posterminal.demo.domain.model.Product
 import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
-import by.vsdev.posterminal.demo.domain.repository.CartRepository
-import by.vsdev.posterminal.demo.domain.repository.ProductRepository
+import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
+import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
+import by.vsdev.posterminal.demo.feature.pos.domain.repository.CartRepository
+import by.vsdev.posterminal.demo.feature.pos.domain.repository.ProductRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
@@ -29,10 +29,7 @@ class AddToCartUseCase(private val cart: CartRepository) {
 }
 
 /** Adds one unit of the product with [productId], if it exists in the catalog. */
-class IncrementCartItemUseCase(
-    private val cart: CartRepository,
-    private val products: ProductRepository,
-) {
+class IncrementCartItemUseCase(private val cart: CartRepository, private val products: ProductRepository) {
     suspend operator fun invoke(productId: String) {
         products.products().firstOrNull { it.id == productId }?.let { cart.add(it) }
     }
@@ -41,11 +38,6 @@ class IncrementCartItemUseCase(
 /** Removes one unit of a product (deleting the line when it reaches zero). */
 class DecrementCartItemUseCase(private val cart: CartRepository) {
     suspend operator fun invoke(productId: String) = cart.decrement(productId)
-}
-
-/** Removes a product line entirely. */
-class RemoveCartItemUseCase(private val cart: CartRepository) {
-    suspend operator fun invoke(productId: String) = cart.remove(productId)
 }
 
 /** Outcome of a checkout attempt. */

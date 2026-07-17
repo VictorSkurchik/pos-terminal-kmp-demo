@@ -1,7 +1,7 @@
-package by.vsdev.posterminal.demo.domain.repository
+package by.vsdev.posterminal.demo.feature.pos.domain.repository
 
-import by.vsdev.posterminal.demo.domain.model.CartLine
-import by.vsdev.posterminal.demo.domain.model.Product
+import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
+import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
 import kotlinx.coroutines.flow.Flow
 
 /** The persisted cart. */
