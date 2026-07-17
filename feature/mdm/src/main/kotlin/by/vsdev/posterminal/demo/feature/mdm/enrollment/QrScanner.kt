@@ -9,6 +9,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,6 +34,18 @@ fun QrScanner(
     val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
     val scanner = remember { BarcodeScanning.getClient() }
     val handled = remember { booleanArrayOf(false) }
+    // Holds the bound provider so it can be unbound when this composable leaves composition.
+    val cameraProviderHolder = remember { arrayOfNulls<ProcessCameraProvider>(1) }
+
+    // Release camera, analysis thread and the ML Kit scanner when the scanner is dismissed —
+    // otherwise the executor thread and detector leak each time the scanner is opened/closed.
+    DisposableEffect(Unit) {
+        onDispose {
+            cameraProviderHolder[0]?.unbindAll()
+            analysisExecutor.shutdown()
+            scanner.close()
+        }
+    }
 
     AndroidView(
         modifier = modifier.fillMaxSize(),
@@ -41,6 +54,7 @@ fun QrScanner(
             val providerFuture = ProcessCameraProvider.getInstance(ctx)
             providerFuture.addListener({
                 val provider = providerFuture.get()
+                cameraProviderHolder[0] = provider
                 val preview = Preview.Builder().build().also {
                     it.setSurfaceProvider(previewView.surfaceProvider)
                 }
