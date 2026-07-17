@@ -48,6 +48,6 @@ val dataModule: Module = module {
     // Repositories
     single<ProductRepository> { ProductRepositoryImpl() }
     single<CartRepository> { CartRepositoryImpl(get()) }
-    single<DeviceRepository> { DeviceRepositoryImpl(get(), get(), get(), get()) }
+    single<DeviceRepository> { DeviceRepositoryImpl(get(), get(), get(), get(), get()) }
     single<EnrollmentTokenParser> { EnrollmentTokenParserImpl() }
 }

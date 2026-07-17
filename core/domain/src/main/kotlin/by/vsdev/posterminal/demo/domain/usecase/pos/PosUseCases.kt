@@ -2,9 +2,9 @@ package by.vsdev.posterminal.demo.domain.usecase.pos
 
 import by.vsdev.posterminal.demo.domain.model.CartLine
 import by.vsdev.posterminal.demo.domain.model.Product
+import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
 import by.vsdev.posterminal.demo.domain.repository.CartRepository
 import by.vsdev.posterminal.demo.domain.repository.ProductRepository
-import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
@@ -14,8 +14,8 @@ class ObserveCartUseCase(private val cart: CartRepository) {
 }
 
 /** Streams whether the admin has restricted payment (the "Pay" button). */
-class ObservePaymentRestrictedUseCase(private val settings: SettingsRepository) {
-    operator fun invoke(): Flow<Boolean> = settings.restrictPayment
+class ObservePaymentRestrictedUseCase(private val policy: DevicePolicy) {
+    operator fun invoke(): Flow<Boolean> = policy.restrictPayment
 }
 
 /** The (static) POS catalog. */

@@ -6,6 +6,7 @@ import by.vsdev.posterminal.demo.domain.model.DeviceCommand
 import by.vsdev.posterminal.demo.domain.model.DeviceStatus
 import by.vsdev.posterminal.demo.domain.model.EnrollmentToken
 import by.vsdev.posterminal.demo.domain.model.Product
+import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
 import by.vsdev.posterminal.demo.domain.repository.CartRepository
 import by.vsdev.posterminal.demo.domain.repository.DeviceRepository
 import by.vsdev.posterminal.demo.domain.repository.ProductRepository
@@ -51,14 +52,10 @@ class FakeSettingsRepository(
 ) : SettingsRepository {
     val enrolledState = MutableStateFlow(false)
     val nameState = MutableStateFlow("POS Terminal")
-    val restrictState = MutableStateFlow(false)
-    val kioskState = MutableStateFlow(false)
     var cleared = false
 
     override val enrolled: Flow<Boolean> = enrolledState
     override val deviceName: Flow<String> = nameState
-    override val restrictPayment: Flow<Boolean> = restrictState
-    override val kioskActive: Flow<Boolean> = kioskState
 
     override suspend fun deviceId(): String = "pos-test01"
     override suspend fun serverUrl(): String = serverUrlValue
@@ -70,18 +67,29 @@ class FakeSettingsRepository(
         name?.let { nameState.value = it }
         serverUrl?.let { serverUrlValue = it }
     }
-    override suspend fun setRestrictPayment(value: Boolean) {
-        restrictState.value = value
-    }
-    override suspend fun setKioskActive(value: Boolean) {
-        kioskState.value = value
-    }
     override suspend fun setDeviceName(name: String) {
         nameState.value = name
     }
     override suspend fun clearEnrollment() {
         cleared = true
         enrolledState.value = false
+    }
+}
+
+class FakeDevicePolicy : DevicePolicy {
+    val restrictState = MutableStateFlow(false)
+    val kioskState = MutableStateFlow(false)
+    var reset = false
+
+    override val restrictPayment: Flow<Boolean> = restrictState
+    override val kioskActive: Flow<Boolean> = kioskState
+
+    override suspend fun setRestrictPayment(value: Boolean) { restrictState.value = value }
+    override suspend fun setKioskActive(value: Boolean) { kioskState.value = value }
+    override suspend fun reset() {
+        reset = true
+        restrictState.value = false
+        kioskState.value = false
     }
 }
 

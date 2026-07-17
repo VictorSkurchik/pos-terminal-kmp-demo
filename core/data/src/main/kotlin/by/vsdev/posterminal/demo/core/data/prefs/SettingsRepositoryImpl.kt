@@ -31,8 +31,6 @@ class SettingsRepositoryImpl(
         val DEVICE_NAME = stringPreferencesKey("device_name")
         val ENROLLED = booleanPreferencesKey("enrolled")
         val SERVER_URL = stringPreferencesKey("server_url")
-        val RESTRICT_APP = booleanPreferencesKey("restrict_app")
-        val KIOSK = booleanPreferencesKey("kiosk_active")
     }
 
     // Guards read-then-write in deviceId() so two concurrent callers can't mint two ids.
@@ -40,8 +38,6 @@ class SettingsRepositoryImpl(
 
     override val enrolled: Flow<Boolean> = context.dataStore.data.map { it[Keys.ENROLLED] ?: false }
     override val deviceName: Flow<String> = context.dataStore.data.map { it[Keys.DEVICE_NAME] ?: "POS Terminal" }
-    override val restrictPayment: Flow<Boolean> = context.dataStore.data.map { it[Keys.RESTRICT_APP] ?: false }
-    override val kioskActive: Flow<Boolean> = context.dataStore.data.map { it[Keys.KIOSK] ?: false }
 
     override suspend fun deviceId(): String = deviceIdMutex.withLock {
         val existing = context.dataStore.data.map { it[Keys.DEVICE_ID] }.first()
@@ -66,26 +62,16 @@ class SettingsRepositoryImpl(
         }
     }
 
-    override suspend fun setRestrictPayment(value: Boolean) {
-        context.dataStore.edit { it[Keys.RESTRICT_APP] = value }
-    }
-
-    override suspend fun setKioskActive(value: Boolean) {
-        context.dataStore.edit { it[Keys.KIOSK] = value }
-    }
-
     override suspend fun setDeviceName(name: String) {
         context.dataStore.edit { it[Keys.DEVICE_NAME] = name }
     }
 
-    /** Clears enrollment + policy flags but KEEPS the stable device id, so re-enrolment reuses it. */
+    /** Clears enrollment but KEEPS the stable device id, so re-enrolment reuses it. (Policy flags are reset via DevicePolicy.) */
     override suspend fun clearEnrollment() {
         context.dataStore.edit { prefs ->
             prefs.remove(Keys.ENROLLED)
             prefs.remove(Keys.DEVICE_NAME)
             prefs.remove(Keys.SERVER_URL)
-            prefs.remove(Keys.RESTRICT_APP)
-            prefs.remove(Keys.KIOSK)
         }
     }
 }

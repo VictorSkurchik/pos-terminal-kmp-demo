@@ -6,6 +6,7 @@ import by.vsdev.posterminal.demo.core.data.platform.DeviceInfoProvider
 import by.vsdev.posterminal.demo.core.data.platform.TimeProvider
 import by.vsdev.posterminal.demo.domain.model.Device
 import by.vsdev.posterminal.demo.domain.model.DeviceCommand
+import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
 import by.vsdev.posterminal.demo.domain.repository.DeviceRepository
 import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.result.AppResult
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.first
 class DeviceRepositoryImpl(
     private val api: PosApi,
     private val settings: SettingsRepository,
+    private val policy: DevicePolicy,
     private val deviceInfo: DeviceInfoProvider,
     private val time: TimeProvider,
 ) : DeviceRepository {
@@ -46,8 +48,8 @@ class DeviceRepositoryImpl(
                 HeartbeatRequest(
                     timestamp = time.nowMillis(),
                     batteryLevel = batteryLevel,
-                    kioskActive = settings.kioskActive.first(),
-                    restrictPayment = settings.restrictPayment.first(),
+                    kioskActive = policy.kioskActive.first(),
+                    restrictPayment = policy.restrictPayment.first(),
                 ),
             ).toDomain()
         }
@@ -65,6 +67,7 @@ class DeviceRepositoryImpl(
         // Intentional reset: clear local enrollment regardless of whether the backend delete succeeds.
         val result = apiCall { api.deleteDevice(settings.deviceId()) }
         settings.clearEnrollment()
+        policy.reset()
         return result
     }
 

@@ -2,6 +2,7 @@ package by.vsdev.posterminal.demo.core.data.repo
 
 import by.vsdev.posterminal.demo.core.data.platform.DeviceInfoProvider
 import by.vsdev.posterminal.demo.core.data.platform.TimeProvider
+import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
 import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.result.AppResult
 import by.vsdev.posterminal.demo.domain.result.DomainError
@@ -27,6 +28,7 @@ import kotlin.test.assertTrue
 class DeviceRepositoryImplTest {
 
     private val settings = FakeSettings()
+    private val policy = FakeDevicePolicy()
     private val deviceInfo = object : DeviceInfoProvider { override val model = "Pixel-Test" }
     private val time = object : TimeProvider { override fun nowMillis() = 42L }
 
@@ -36,7 +38,7 @@ class DeviceRepositoryImplTest {
             install(ContentNegotiation) { json(posJson) }
         }
         val api = KtorPosApiClient(baseUrlProvider = { "https://backend.test" }, client = client)
-        return DeviceRepositoryImpl(api, settings, deviceInfo, time)
+        return DeviceRepositoryImpl(api, settings, policy, deviceInfo, time)
     }
 
     @Test
@@ -92,15 +94,19 @@ class DeviceRepositoryImplTest {
     private class FakeSettings : SettingsRepository {
         override val enrolled: Flow<Boolean> = MutableStateFlow(true)
         override val deviceName: Flow<String> = MutableStateFlow("POS Terminal")
-        override val restrictPayment: Flow<Boolean> = MutableStateFlow(false)
-        override val kioskActive: Flow<Boolean> = MutableStateFlow(false)
         override suspend fun deviceId() = "pos-test01"
         override suspend fun serverUrl() = "https://backend.test"
         override suspend fun setServerUrl(url: String) = Unit
         override suspend fun setEnrolled(enrolled: Boolean, name: String?, serverUrl: String?) = Unit
-        override suspend fun setRestrictPayment(value: Boolean) = Unit
-        override suspend fun setKioskActive(value: Boolean) = Unit
         override suspend fun setDeviceName(name: String) = Unit
         override suspend fun clearEnrollment() = Unit
+    }
+
+    private class FakeDevicePolicy : DevicePolicy {
+        override val restrictPayment: Flow<Boolean> = MutableStateFlow(false)
+        override val kioskActive: Flow<Boolean> = MutableStateFlow(false)
+        override suspend fun setRestrictPayment(value: Boolean) = Unit
+        override suspend fun setKioskActive(value: Boolean) = Unit
+        override suspend fun reset() = Unit
     }
 }

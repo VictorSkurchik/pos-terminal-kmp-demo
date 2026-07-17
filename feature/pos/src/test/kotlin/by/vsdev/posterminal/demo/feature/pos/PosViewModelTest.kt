@@ -3,9 +3,9 @@ package by.vsdev.posterminal.demo.feature.pos
 import app.cash.turbine.test
 import by.vsdev.posterminal.demo.domain.model.CartLine
 import by.vsdev.posterminal.demo.domain.model.Product
+import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
 import by.vsdev.posterminal.demo.domain.repository.CartRepository
 import by.vsdev.posterminal.demo.domain.repository.ProductRepository
-import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.usecase.pos.AddToCartUseCase
 import by.vsdev.posterminal.demo.domain.usecase.pos.CheckoutUseCase
 import by.vsdev.posterminal.demo.domain.usecase.pos.DecrementCartItemUseCase
@@ -34,7 +34,7 @@ class PosViewModelTest {
     private val cart = FakeCart()
     private val catalog = listOf(Product("sku-latte", "Latte", 450))
     private val products = FakeProducts(catalog)
-    private val settings = FakeSettings()
+    private val policy = FakeDevicePolicy()
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(dispatcher)
@@ -45,7 +45,7 @@ class PosViewModelTest {
     private fun viewModel() = PosViewModel(
         GetProductsUseCase(products),
         ObserveCartUseCase(cart),
-        ObservePaymentRestrictedUseCase(settings),
+        ObservePaymentRestrictedUseCase(policy),
         AddToCartUseCase(cart),
         IncrementCartItemUseCase(cart, products),
         DecrementCartItemUseCase(cart),
@@ -99,18 +99,11 @@ class PosViewModelTest {
         override fun products(): List<Product> = items
     }
 
-    private class FakeSettings : SettingsRepository {
-        override val enrolled: Flow<Boolean> = MutableStateFlow(true)
-        override val deviceName: Flow<String> = MutableStateFlow("POS")
+    private class FakeDevicePolicy : DevicePolicy {
         override val restrictPayment: Flow<Boolean> = MutableStateFlow(false)
         override val kioskActive: Flow<Boolean> = MutableStateFlow(false)
-        override suspend fun deviceId() = "pos-test01"
-        override suspend fun serverUrl() = "https://test"
-        override suspend fun setServerUrl(url: String) = Unit
-        override suspend fun setEnrolled(enrolled: Boolean, name: String?, serverUrl: String?) = Unit
         override suspend fun setRestrictPayment(value: Boolean) = Unit
         override suspend fun setKioskActive(value: Boolean) = Unit
-        override suspend fun setDeviceName(name: String) = Unit
-        override suspend fun clearEnrollment() = Unit
+        override suspend fun reset() = Unit
     }
 }

@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.koin.androidxCompose)
     implementation(libs.koin.androidxWorkmanager)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.datastore.preferences)
 }
 
 android {

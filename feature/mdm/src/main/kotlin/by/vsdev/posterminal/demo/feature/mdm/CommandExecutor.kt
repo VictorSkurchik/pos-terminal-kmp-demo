@@ -8,7 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import by.vsdev.posterminal.demo.domain.model.CommandType
 import by.vsdev.posterminal.demo.domain.model.DeviceCommand
-import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
+import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
 import by.vsdev.posterminal.demo.domain.service.DeviceAdminRepository
 import by.vsdev.posterminal.demo.domain.service.MdmCommandExecutor
 import by.vsdev.posterminal.demo.domain.usecase.mdm.LogoutUseCase
@@ -21,7 +21,7 @@ import by.vsdev.posterminal.demo.domain.usecase.mdm.LogoutUseCase
  */
 class CommandExecutor(
     private val context: Context,
-    private val settings: SettingsRepository,
+    private val policy: DevicePolicy,
     private val controller: MdmController,
     private val deviceAdmin: DeviceAdminRepository,
     private val logout: LogoutUseCase,
@@ -38,12 +38,12 @@ class CommandExecutor(
                 }
 
             CommandType.KIOSK_ON -> {
-                settings.setKioskActive(true)
+                policy.setKioskActive(true)
                 controller.startKiosk()
             }
 
             CommandType.KIOSK_OFF -> {
-                settings.setKioskActive(false)
+                policy.setKioskActive(false)
                 controller.stopKiosk()
             }
 
@@ -52,7 +52,7 @@ class CommandExecutor(
 
             // Emulation: payload "off" removes the restriction, otherwise it blocks the "Pay" button.
             CommandType.RESTRICT_APP ->
-                settings.setRestrictPayment(!command.payload.equals("off", ignoreCase = true))
+                policy.setRestrictPayment(!command.payload.equals("off", ignoreCase = true))
 
             // Admin reset: un-enroll + delete from backend → the app returns to Registration.
             CommandType.WIPE -> logout()
