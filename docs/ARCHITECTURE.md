@@ -1,40 +1,51 @@
 # Architecture
 
-The Android app follows a pragmatic **Clean Architecture**: a framework-free domain core, a data
-layer that implements the domain contracts, and thin feature/presentation modules on top. Modules
-depend **inwards only** — features and UI know the domain, never the other way round.
+The app is organised as **feature-owned vertical slices over a small shared kernel**. Each feature
+module contains its own `domain` (models, repository/service interfaces, use cases), `data`
+(implementations, persistence, transport) and `presentation` (MVI ViewModel + composables), with its
+own Koin module. Core holds only what is genuinely shared. Dependencies point **inwards only** — a
+feature knows the kernel, never another feature.
 
 ## Module graph
 
 ```
                        ┌─────────────────────────┐
-                       │        :app:androidApp   │  Koin init, type-safe NavHost, AppViewModel
+                       │       :app:androidApp    │  Koin init, NavHost, AppViewModel, DevicePolicy store
                        └───────────┬─────────────┘
               ┌────────────────────┼─────────────────────┐
       ┌───────▼──────┐     ┌───────▼──────┐       ┌───────▼──────┐
-      │ :feature:pos │     │ :feature:mdm │       │:feature:offer│  ViewModels + stateless screens
-      └───────┬──────┘     └───────┬──────┘       └───────┬──────┘
-              └──────────┬─────────┴───────────┬──────────┘
-                  ┌───────▼──────┐      ┌───────▼──────┐
-                  │  :core:ui    │      │ :core:data   │  Compose design system  /  impls + Room + DataStore + Ktor
-                  └───────┬──────┘      └───────┬──────┘
-                          └──────────┬──────────┘
-                             ┌───────▼───────┐        ┌──────────┐
-                             │ :core:domain  │◀───────│  :core   │  wire DTOs + PosApi (shared with :server)
-                             └───────────────┘        └──────────┘
+      │ :feature:pos │     │ :feature:mdm │       │:feature:offer│  each: domain + data + presentation
+      └───┬───────┬──┘     └──┬────────┬──┘       └───────┬──────┘
+          │       │           │        │                  │
+          ▼       └─────┬─────┘        ▼                  ▼
+     ┌─────────┐   ┌────▼─────┐   ┌────────┐         ┌────────┐
+     │ :core:  │   │ :core:   │   │ :core  │◀────────│:server │  (wire, shared)
+     │ domain  │   │   ui     │   │ (wire) │         └────────┘
+     │(kernel) │   │(design)  │   └────────┘
+     └─────────┘   └──────────┘
 ```
 
-- **`:core:domain`** (pure Kotlin/JVM) — domain models, `AppResult`/`DomainError`, repository & service
-  **interfaces**, `DispatcherProvider`, and thin **use cases**. No Android, Ktor, Room or Koin.
-- **`:core`** (KMP) — `@Serializable` **wire DTOs**, the `PosApi` interface + `KtorPosApiClient`. Shared
-  with the Ktor `:server` and the web admin, so it stays transport-only.
-- **`:core:data`** (Android) — implements the domain repositories, **maps DTO ↔ domain**, owns Room,
-  DataStore and the Koin `dataModule`/`domainModule`. The only place that knows about Ktor exceptions.
-- **`:core:ui`** — Material3 theme + atomic-design components (atoms/molecules/organisms), with previews.
-- **`:feature:*`** — a `ViewModel` per screen over **use cases** (never repositories directly) plus
-  stateless composables. MDM infra (foreground service, WorkManager, `DevicePolicyManager`) lives here
-  behind the domain service interfaces.
-- **`:app:androidApp`** — Koin startup, the type-safe `NavHost`, and `AppViewModel` (session/kiosk logic).
+- **`:core:domain`** (pure Kotlin/JVM) — the **shared kernel**: `AppResult`/`DomainError`,
+  `DispatcherProvider` (+ default), `formatCents`, and the cross-cutting **`DevicePolicy`** port. No
+  feature domain, no Android/Ktor/Room/Koin.
+- **`:core`** (KMP) — `@Serializable` **wire DTOs** + wire Device/Command models + `PosApi`/
+  `KtorPosApiClient` + `posJson`. Transport-only; shared by the Ktor `:server` and `:feature:mdm`.
+- **`:core:ui`** — a **generic** Material3 design system (atoms/molecules) + theme + the **MVI base**
+  (`MviViewModel`/`UiState`/`UiIntent`/`UiSideEffect`). No domain dependency.
+- **`:feature:pos`** — vertical slice: Product/Cart domain + use cases, Room cart store + catalog
+  (data), and the POS screen/components (presentation). Owns no shared state.
+- **`:feature:mdm`** — vertical slice: Device/Command domain, the `MdmServices` service interfaces and
+  use cases; data = `DeviceRepositoryImpl`, enrollment-settings DataStore, Ktor client, device-info/
+  time providers, plus the Android infra (foreground service, `DeviceAdminReceiver`, WorkManager,
+  CameraX/ML-Kit QR scanner); presentation = Registration + Settings.
+- **`:feature:offer`** — presentation-only (the attract-loop screensaver); no domain/data.
+- **`:app:androidApp`** — Koin startup, the type-safe `NavHost`, `AppViewModel` (session/kiosk), and the
+  `DevicePolicy` DataStore implementation (the one cross-feature policy store lives at the composition root).
+
+### Cross-cutting policy (`DevicePolicy`)
+`restrictPayment` and `kioskActive` are set remotely by MDM commands but read by POS (to gate the Pay
+button) and the heartbeat. Rather than couple the two features, they sit behind a `DevicePolicy` port in
+the kernel; the app provides the concrete DataStore. So `pos` and `mdm` never depend on each other.
 
 ## Key conventions
 
