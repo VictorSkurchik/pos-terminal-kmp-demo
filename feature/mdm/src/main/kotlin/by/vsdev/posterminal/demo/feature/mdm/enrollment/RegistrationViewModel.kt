@@ -75,7 +75,9 @@ class RegistrationViewModel(
                 is Pending.WithToken -> when (val result = enrollWithToken(currentState.name, request.payload)) {
                     is EnrollmentResult.Success -> postSideEffect(RegistrationSideEffect.Enrolled(result.device.id))
                     EnrollmentResult.InvalidToken -> failBack { postSideEffect(RegistrationSideEffect.InvalidQr) }
-                    is EnrollmentResult.Failed -> failBack { postSideEffect(RegistrationSideEffect.Failed(result.error)) }
+                    is EnrollmentResult.Failed -> failBack {
+                        postSideEffect(RegistrationSideEffect.Failed(result.error))
+                    }
                 }
             }
         }

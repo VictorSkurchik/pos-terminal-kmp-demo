@@ -14,11 +14,7 @@ data class RegisterRequest(
 )
 
 @Serializable
-data class HeartbeatRequest(
-    val timestamp: Long,
-    val batteryLevel: Int? = null,
-    val kioskActive: Boolean? = null,
-)
+data class HeartbeatRequest(val timestamp: Long, val batteryLevel: Int? = null, val kioskActive: Boolean? = null)
 
 /** Enqueue a new command (from the admin console). */
 @Serializable

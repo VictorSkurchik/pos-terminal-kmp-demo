@@ -33,7 +33,13 @@ import org.koin.androidx.compose.koinViewModel
 private val CartHeight = 260.dp
 
 @Composable
-fun PosScreen(onOpenSettings: () -> Unit, modifier: Modifier = Modifier, viewModel: PosViewModel = koinViewModel()) {
+fun PosScreen(
+    onOpenSettings: () -> Unit,
+    language: String,
+    onToggleLanguage: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: PosViewModel = koinViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -51,6 +57,8 @@ fun PosScreen(onOpenSettings: () -> Unit, modifier: Modifier = Modifier, viewMod
         state = state,
         snackbar = snackbar,
         onOpenSettings = onOpenSettings,
+        language = language,
+        onToggleLanguage = onToggleLanguage,
         onIntent = viewModel::onIntent,
         modifier = modifier,
     )
@@ -61,12 +69,21 @@ private fun PosContent(
     state: PosUiState,
     snackbar: SnackbarHostState,
     onOpenSettings: () -> Unit,
+    language: String,
+    onToggleLanguage: () -> Unit,
     onIntent: (PosIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = { PosTopBar(title = stringResource(R.string.pos_title), onSettingsClick = onOpenSettings) },
+        topBar = {
+            PosTopBar(
+                title = stringResource(R.string.pos_title),
+                onSettingsClick = onOpenSettings,
+                language = language,
+                onToggleLanguage = onToggleLanguage,
+            )
+        },
         snackbarHost = { SnackbarHost(snackbar) },
     ) { padding ->
         Box(
@@ -115,6 +132,8 @@ private fun PosPreview() {
             ),
             snackbar = remember { SnackbarHostState() },
             onOpenSettings = {},
+            language = "EN",
+            onToggleLanguage = {},
             onIntent = {},
         )
     }

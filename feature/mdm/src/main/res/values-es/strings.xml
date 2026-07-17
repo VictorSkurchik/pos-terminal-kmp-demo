@@ -1,0 +1,55 @@
+<resources>
+    <string name="device_admin_label">Agente MDM del TPV</string>
+    <string name="device_admin_description">Permite el bloqueo remoto de este terminal TPV.</string>
+
+    <!-- Registration -->
+    <string name="reg_brand_emoji">🍽</string>
+    <string name="reg_title">TPV Restaurante</string>
+    <string name="reg_subtitle">Configura este terminal escaneando el QR de inscripción desde la consola de administración.</string>
+    <string name="reg_scan_qr">Escanear QR para registrar</string>
+    <string name="reg_register_manually">Registrar manualmente</string>
+    <string name="reg_admin_hint">Activa el Administrador de dispositivos para terminar la configuración y continuar.</string>
+    <string name="reg_cancel">Cancelar</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_back">Atrás</string>
+    <string name="settings_section_device">Dispositivo</string>
+    <string name="settings_device_id">ID del dispositivo</string>
+    <string name="settings_name">Nombre</string>
+    <string name="settings_enrolled">Inscrito</string>
+    <string name="settings_device_admin">Administrador de dispositivos</string>
+    <string name="settings_kiosk">Kiosco (fijado)</string>
+    <string name="settings_yes">sí</string>
+    <string name="settings_no">no</string>
+    <string name="settings_active">activo</string>
+    <string name="settings_inactive">inactivo</string>
+    <string name="settings_on">activado</string>
+    <string name="settings_off">desactivado</string>
+    <string name="settings_admin_enabled">Administrador de dispositivos activado</string>
+    <string name="settings_enable_admin">Activar Administrador de dispositivos</string>
+    <string name="settings_sync_now">Sincronizar ahora</string>
+    <string name="settings_factory_reset">Restablecer de fábrica</string>
+    <string name="settings_reset_title">¿Restablecer de fábrica este terminal?</string>
+    <string name="settings_reset_text">Se eliminará de la consola de administración y volverá a la pantalla de registro.</string>
+    <string name="settings_admin_explanation">Necesario para que el administrador pueda bloquear remotamente este terminal TPV.</string>
+
+    <!-- Admin message dialog -->
+    <string name="msg_from_admin">Mensaje del administrador</string>
+    <string name="msg_ok">Aceptar</string>
+
+    <!-- Enrollment events -->
+    <string name="enroll_success">Inscrito como %1$s ✓</string>
+    <string name="enroll_invalid_qr">Código QR no válido</string>
+    <string name="enroll_sync_requested">Sincronización solicitada</string>
+    <string name="enroll_logged_out">Terminal restablecido</string>
+
+    <!-- Domain errors -->
+    <string name="err_network">Sin conexión: revisa la red e inténtalo de nuevo.</string>
+    <string name="err_timeout">La solicitud expiró. Inténtalo de nuevo.</string>
+    <string name="err_unauthorized">No autorizado.</string>
+    <string name="err_not_found">Dispositivo no encontrado en el servidor.</string>
+    <string name="err_server">Error del servidor (%1$d). Inténtalo más tarde.</string>
+    <string name="err_serialization">Respuesta inesperada del servidor.</string>
+    <string name="err_unknown">Algo salió mal. Inténtalo de nuevo.</string>
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="ui_add">Añadir</string>
+    <string name="ui_settings">Ajustes</string>
+    <string name="ui_cart">Carrito</string>
+    <string name="ui_cart_empty">El carrito está vacío</string>
+    <string name="ui_total">Total</string>
+</resources>

@@ -29,6 +29,7 @@ dependencies {
     implementation(platform(libs.koin.bom))
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.compose.ui)
     implementation(libs.androidx.lifecycle.viewmodelCompose)
     implementation(libs.navigation.compose)
