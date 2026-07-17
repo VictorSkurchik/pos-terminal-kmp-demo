@@ -16,6 +16,13 @@ pluginManagement {
     }
 }
 
+// Lets Gradle auto-provision the JDK 17 *compile* toolchain (jvmToolchain(17)) on machines
+// that don't have it installed — e.g. the Render Docker image, which ships only JDK 21.
+// Without this, `jvmToolchain(17)` fails with "Toolchain auto-provisioning is not enabled".
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 dependencyResolutionManagement {
     repositories {
         google {
