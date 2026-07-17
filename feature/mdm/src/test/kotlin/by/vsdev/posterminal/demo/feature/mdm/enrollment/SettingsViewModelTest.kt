@@ -1,14 +1,14 @@
 package by.vsdev.posterminal.demo.feature.mdm.enrollment
 
 import app.cash.turbine.test
-import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.result.AppResult
 import by.vsdev.posterminal.demo.domain.result.DomainError
-import by.vsdev.posterminal.demo.domain.service.DeviceAdminRepository
-import by.vsdev.posterminal.demo.domain.usecase.mdm.LogoutUseCase
-import by.vsdev.posterminal.demo.domain.usecase.mdm.ObserveEnrollmentUseCase
-import by.vsdev.posterminal.demo.domain.usecase.mdm.ObserveKioskStateUseCase
-import by.vsdev.posterminal.demo.domain.usecase.mdm.SyncNowUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.repository.SettingsRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.service.DeviceAdminRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.LogoutUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.ObserveEnrollmentUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.ObserveKioskStateUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.SyncNowUseCase
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

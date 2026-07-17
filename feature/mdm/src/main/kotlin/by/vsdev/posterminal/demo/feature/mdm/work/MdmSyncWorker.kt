@@ -5,9 +5,9 @@ import android.os.BatteryManager
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import by.vsdev.posterminal.demo.domain.repository.SettingsRepository
 import by.vsdev.posterminal.demo.domain.result.AppResult
-import by.vsdev.posterminal.demo.domain.usecase.mdm.SyncDeviceUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.repository.SettingsRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.SyncDeviceUseCase
 import kotlinx.coroutines.flow.first
 
 /**

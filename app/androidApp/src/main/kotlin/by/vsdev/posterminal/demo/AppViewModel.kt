@@ -2,8 +2,8 @@ package by.vsdev.posterminal.demo
 
 import androidx.lifecycle.viewModelScope
 import by.vsdev.posterminal.demo.core.ui.mvi.MviViewModel
-import by.vsdev.posterminal.demo.domain.usecase.mdm.ObserveEnrollmentUseCase
-import by.vsdev.posterminal.demo.domain.usecase.mdm.ObserveKioskStateUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.ObserveEnrollmentUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.ObserveKioskStateUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged

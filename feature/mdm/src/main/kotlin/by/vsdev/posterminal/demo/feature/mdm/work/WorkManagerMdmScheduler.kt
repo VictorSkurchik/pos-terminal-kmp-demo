@@ -7,7 +7,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import by.vsdev.posterminal.demo.domain.service.MdmScheduler
+import by.vsdev.posterminal.demo.feature.mdm.domain.service.MdmScheduler
 import java.util.concurrent.TimeUnit
 
 /** WorkManager-backed [MdmScheduler] (no FCM). */

@@ -22,7 +22,6 @@ val keystoreProps = rootProject.file("keystore.properties")
 dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.ui)
-    implementation(projects.core.data)
     implementation(projects.feature.pos)
     implementation(projects.feature.mdm)
     implementation(projects.feature.offer)

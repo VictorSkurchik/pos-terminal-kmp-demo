@@ -6,12 +6,12 @@ import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import by.vsdev.posterminal.demo.domain.model.CommandType
-import by.vsdev.posterminal.demo.domain.model.DeviceCommand
 import by.vsdev.posterminal.demo.domain.policy.DevicePolicy
-import by.vsdev.posterminal.demo.domain.service.DeviceAdminRepository
-import by.vsdev.posterminal.demo.domain.service.MdmCommandExecutor
-import by.vsdev.posterminal.demo.domain.usecase.mdm.LogoutUseCase
+import by.vsdev.posterminal.demo.feature.mdm.domain.model.CommandType
+import by.vsdev.posterminal.demo.feature.mdm.domain.model.DeviceCommand
+import by.vsdev.posterminal.demo.feature.mdm.domain.service.DeviceAdminRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.service.MdmCommandExecutor
+import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.LogoutUseCase
 
 /**
  * Executes remote MDM commands. LOCK/KIOSK use real Android APIs; SHOW_MESSAGE and RESTRICT_APP
