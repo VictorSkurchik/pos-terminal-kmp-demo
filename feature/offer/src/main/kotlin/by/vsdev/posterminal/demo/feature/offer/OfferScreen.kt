@@ -22,9 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,23 +34,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import by.vsdev.posterminal.demo.core.ui.components.StoryProgressBar
 import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
 import coil3.compose.AsyncImage
-
-/** One promotional slide. Real images are user-provided; [emoji] is the placeholder motif. */
-data class OfferItem(
-    val title: String,
-    val subtitle: String,
-    val emoji: String,
-    val imageUrl: String? = null,
-)
-
-val sampleOffers = listOf(
-    OfferItem("2-for-1 Burgers", "Every weekday, 4–6 PM", "🍔"),
-    OfferItem("Free Dessert", "With any main course", "🍰"),
-    OfferItem("Happy Hour", "20% off all drinks til 7 PM", "🍹"),
-)
+import org.koin.androidx.compose.koinViewModel
 
 private const val SLIDE_MILLIS = 5000
 
@@ -67,28 +53,44 @@ private val scatter = listOf(
 )
 
 /**
- * Full-screen attract loop shown while the terminal is idle in kiosk mode. [offers] rotate every
- * 5 s with Instagram-stories progress bars on top; the slide's emoji is scattered as small
- * varied-size motifs. Any tap calls [onExit].
+ * Full-screen attract loop shown while the terminal is idle in kiosk mode. Slides rotate every 5 s
+ * with Instagram-stories progress bars on top; a tap exits. The slide index lives in [OfferViewModel];
+ * the composable only animates the progress bar and reports completion / taps as intents.
  */
 @Composable
 fun OfferScreen(
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
-    offers: List<OfferItem> = sampleOffers,
+    viewModel: OfferViewModel = koinViewModel(),
 ) {
-    if (offers.isEmpty()) return
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    var index by remember { mutableIntStateOf(0) }
-    val progress = remember { Animatable(0f) }
-
-    LaunchedEffect(index) {
-        progress.snapTo(0f)
-        progress.animateTo(1f, tween(durationMillis = SLIDE_MILLIS, easing = LinearEasing))
-        index = (index + 1) % offers.size
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                OfferSideEffect.Exit -> onExit()
+            }
+        }
     }
 
-    val offer = offers[index]
+    OfferContent(state = state, onIntent = viewModel::onIntent, modifier = modifier)
+}
+
+@Composable
+private fun OfferContent(
+    state: OfferUiState,
+    onIntent: (OfferIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val offer = state.current ?: return
+    val progress = remember { Animatable(0f) }
+
+    LaunchedEffect(state.index) {
+        progress.snapTo(0f)
+        progress.animateTo(1f, tween(durationMillis = SLIDE_MILLIS, easing = LinearEasing))
+        onIntent(OfferIntent.SlideCompleted)
+    }
+
     val scheme = MaterialTheme.colorScheme
     // Container + matching on-container colors keep text legible in both light and dark themes.
     val palette = remember(scheme) {
@@ -98,13 +100,13 @@ fun OfferScreen(
             scheme.tertiaryContainer to scheme.onTertiaryContainer,
         )
     }
-    val (background, onColor) = palette[index % palette.size]
+    val (background, onColor) = palette[state.index % palette.size]
 
     BoxWithConstraints(
         modifier
             .fillMaxSize()
             .background(background)
-            .pointerInput(Unit) { detectTapGestures { onExit() } },
+            .pointerInput(Unit) { detectTapGestures { onIntent(OfferIntent.Dismiss) } },
     ) {
         val w = maxWidth
         val h = maxHeight
@@ -159,11 +161,11 @@ fun OfferScreen(
                 .padding(horizontal = 12.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            offers.forEachIndexed { i, _ ->
+            state.offers.forEachIndexed { i, _ ->
                 StoryProgressBar(
                     progress = when {
-                        i < index -> 1f
-                        i == index -> progress.value
+                        i < state.index -> 1f
+                        i == state.index -> progress.value
                         else -> 0f
                     },
                     modifier = Modifier.weight(1f),
@@ -186,6 +188,6 @@ fun OfferScreen(
 @Composable
 private fun OfferPreview() {
     PosTheme {
-        OfferScreen(onExit = {})
+        OfferContent(state = OfferUiState(), onIntent = {})
     }
 }
