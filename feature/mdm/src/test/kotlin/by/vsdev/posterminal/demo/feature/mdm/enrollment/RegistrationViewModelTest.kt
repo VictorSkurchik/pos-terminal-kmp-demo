@@ -6,6 +6,7 @@ import by.vsdev.posterminal.demo.domain.result.DomainError
 import by.vsdev.posterminal.demo.feature.mdm.domain.model.Device
 import by.vsdev.posterminal.demo.feature.mdm.domain.model.DeviceStatus
 import by.vsdev.posterminal.demo.feature.mdm.domain.repository.SettingsRepository
+import by.vsdev.posterminal.demo.feature.mdm.domain.service.DeviceAdminRepository
 import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.EnrollDeviceUseCase
 import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.EnrollWithTokenUseCase
 import by.vsdev.posterminal.demo.feature.mdm.domain.usecase.EnrollmentResult
@@ -33,18 +34,21 @@ class RegistrationViewModelTest {
     private val enrollDevice = mockk<EnrollDeviceUseCase>()
     private val enrollWithToken = mockk<EnrollWithTokenUseCase>()
     private val settings = mockk<SettingsRepository>()
+    private val deviceAdmin = mockk<DeviceAdminRepository>()
 
     @BeforeTest
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         coEvery { settings.deviceId() } returns "pos-1"
         every { settings.deviceName } returns flowOf("POS Terminal")
+        // Default: admin already active, so enrollment completes immediately.
+        every { deviceAdmin.isAdminActive() } returns true
     }
 
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = RegistrationViewModel(enrollDevice, enrollWithToken, settings)
+    private fun viewModel() = RegistrationViewModel(enrollDevice, enrollWithToken, settings, deviceAdmin)
 
     @Test
     fun `manual enroll success emits Enrolled`() = runTest(dispatcher) {
@@ -76,6 +80,23 @@ class RegistrationViewModelTest {
             vm.onIntent(RegistrationIntent.RegisterManually)
             advanceUntilIdle()
             assertEquals(RegistrationSideEffect.Failed(DomainError.Network), awaitItem())
+        }
+    }
+
+    @Test
+    fun `registration defers to POS until Device Admin is enabled`() = runTest(dispatcher) {
+        every { deviceAdmin.isAdminActive() } returnsMany listOf(false, true)
+        coEvery { enrollDevice(any()) } returns AppResult.Success(device())
+        val vm = viewModel()
+
+        vm.onIntent(RegistrationIntent.RegisterManually)
+        advanceUntilIdle()
+        assertEquals(true, vm.state.value.awaitingAdmin) // no enrollment yet — awaiting admin
+
+        vm.sideEffect.test {
+            vm.onIntent(RegistrationIntent.AdminResult) // admin now granted
+            advanceUntilIdle()
+            assertIs<RegistrationSideEffect.Enrolled>(awaitItem())
         }
     }
 

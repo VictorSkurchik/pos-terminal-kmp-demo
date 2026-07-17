@@ -8,6 +8,7 @@
     <string name="reg_subtitle">Set up this terminal by scanning the enrollment QR from the admin console.</string>
     <string name="reg_scan_qr">Scan QR to register</string>
     <string name="reg_register_manually">Register manually</string>
+    <string name="reg_admin_hint">Enable Device Admin to finish setting up this terminal and continue.</string>
     <string name="reg_cancel">Cancel</string>
 
     <!-- Settings -->

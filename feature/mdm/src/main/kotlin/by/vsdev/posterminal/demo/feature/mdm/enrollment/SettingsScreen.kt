@@ -1,10 +1,5 @@
 package by.vsdev.posterminal.demo.feature.mdm.enrollment
 
-import android.app.admin.DevicePolicyManager
-import android.content.Context
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +36,6 @@ import by.vsdev.posterminal.demo.core.ui.components.InfoRow
 import by.vsdev.posterminal.demo.core.ui.components.SectionTitle
 import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
 import by.vsdev.posterminal.demo.feature.mdm.R
-import by.vsdev.posterminal.demo.feature.mdm.admin.PosDeviceAdminReceiver
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -50,17 +44,8 @@ fun SettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel:
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
 
-    val adminLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        viewModel.onIntent(SettingsIntent.AdminResult)
-    }
-
     LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
-            when (effect) {
-                SettingsSideEffect.LaunchDeviceAdmin -> adminLauncher.launch(addAdminIntent(context))
-                else -> snackbar.showSnackbar(effect.toMessage(context))
-            }
-        }
+        viewModel.sideEffect.collect { effect -> snackbar.showSnackbar(effect.toMessage(context)) }
     }
 
     SettingsContent(
@@ -119,16 +104,6 @@ private fun SettingsContent(
 
             Spacer(Modifier.height(12.dp))
             AppButton(
-                text = stringResource(
-                    if (state.adminActive) R.string.settings_admin_enabled else R.string.settings_enable_admin,
-                ),
-                onClick = { onIntent(SettingsIntent.EnableAdmin) },
-                variant = AppButtonVariant.Outlined,
-                enabled = !state.adminActive,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Spacer(Modifier.height(8.dp))
-            AppButton(
                 text = stringResource(R.string.settings_sync_now),
                 onClick = { onIntent(SettingsIntent.SyncNow) },
                 variant = AppButtonVariant.Tonal,
@@ -170,13 +145,6 @@ private fun activeInactive(value: Boolean) =
 
 @Composable
 private fun onOff(value: Boolean) = stringResource(if (value) R.string.settings_on else R.string.settings_off)
-
-private fun addAdminIntent(context: Context): Intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, PosDeviceAdminReceiver.componentName(context))
-    .putExtra(
-        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-        context.getString(R.string.settings_admin_explanation),
-    )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview

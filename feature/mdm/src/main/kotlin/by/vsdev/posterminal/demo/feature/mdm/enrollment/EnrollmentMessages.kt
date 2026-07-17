@@ -9,14 +9,14 @@ fun RegistrationSideEffect.toMessage(context: Context): String = when (this) {
     is RegistrationSideEffect.Enrolled -> context.getString(R.string.enroll_success, deviceId)
     RegistrationSideEffect.InvalidQr -> context.getString(R.string.enroll_invalid_qr)
     is RegistrationSideEffect.Failed -> error.toMessage(context)
+    RegistrationSideEffect.LaunchDeviceAdmin -> ""
 }
 
-/** Maps settings side effects to localized text. [SettingsSideEffect.LaunchDeviceAdmin] has no text. */
+/** Maps settings side effects to localized text. */
 fun SettingsSideEffect.toMessage(context: Context): String = when (this) {
     SettingsSideEffect.SyncRequested -> context.getString(R.string.enroll_sync_requested)
     SettingsSideEffect.LoggedOut -> context.getString(R.string.enroll_logged_out)
     is SettingsSideEffect.Failed -> error.toMessage(context)
-    SettingsSideEffect.LaunchDeviceAdmin -> ""
 }
 
 fun DomainError.toMessage(context: Context): String = when (this) {

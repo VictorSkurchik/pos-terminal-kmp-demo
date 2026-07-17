@@ -1,6 +1,9 @@
 package by.vsdev.posterminal.demo.feature.mdm.enrollment
 
 import android.Manifest
+import android.app.admin.DevicePolicyManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,11 +42,12 @@ import by.vsdev.posterminal.demo.core.ui.components.AppButton
 import by.vsdev.posterminal.demo.core.ui.components.AppButtonVariant
 import by.vsdev.posterminal.demo.core.ui.theme.PosTheme
 import by.vsdev.posterminal.demo.feature.mdm.R
+import by.vsdev.posterminal.demo.feature.mdm.admin.PosDeviceAdminReceiver
 import org.koin.androidx.compose.koinViewModel
 
 /**
- * Initial screen shown until the terminal is enrolled. Register by scanning the QR from the admin
- * console (or a manual fallback). On success `enrolled` flips true and AppNavHost routes to POS.
+ * Initial screen shown until the terminal is enrolled. The user registers (QR or manual fallback),
+ * then MUST enable Device Admin before enrollment completes and AppNavHost routes to POS.
  */
 @Composable
 fun RegistrationScreen(modifier: Modifier = Modifier, viewModel: RegistrationViewModel = koinViewModel()) {
@@ -51,8 +55,17 @@ fun RegistrationScreen(modifier: Modifier = Modifier, viewModel: RegistrationVie
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
 
+    val adminLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        viewModel.onIntent(RegistrationIntent.AdminResult)
+    }
+
     LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { snackbar.showSnackbar(it.toMessage(context)) }
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                RegistrationSideEffect.LaunchDeviceAdmin -> adminLauncher.launch(addAdminIntent(context))
+                else -> snackbar.showSnackbar(effect.toMessage(context))
+            }
+        }
     }
 
     RegistrationContent(
@@ -119,33 +132,43 @@ private fun RegistrationContent(
                 modifier = Modifier.padding(top = 8.dp),
             )
             Text(
-                stringResource(R.string.reg_subtitle),
+                stringResource(if (state.awaitingAdmin) R.string.reg_admin_hint else R.string.reg_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, bottom = 32.dp),
             )
 
-            AppButton(
-                text = stringResource(R.string.reg_scan_qr),
-                onClick = {
-                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                        PackageManager.PERMISSION_GRANTED
-                    ) {
-                        showScanner = true
-                    } else {
-                        cameraLauncher.launch(Manifest.permission.CAMERA)
-                    }
-                },
-                enabled = !state.busy,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            if (state.awaitingAdmin) {
+                // Device Admin gate: enrollment only finishes (→ POS) once admin is granted.
+                AppButton(
+                    text = stringResource(R.string.settings_enable_admin),
+                    onClick = { onIntent(RegistrationIntent.EnableAdmin) },
+                    enabled = !state.busy,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
+                AppButton(
+                    text = stringResource(R.string.reg_scan_qr),
+                    onClick = {
+                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
+                            PackageManager.PERMISSION_GRANTED
+                        ) {
+                            showScanner = true
+                        } else {
+                            cameraLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    },
+                    enabled = !state.busy,
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
-            TextButton(
-                onClick = { onIntent(RegistrationIntent.RegisterManually) },
-                enabled = !state.busy,
-                modifier = Modifier.padding(top = 8.dp),
-            ) { Text(stringResource(R.string.reg_register_manually)) }
+                TextButton(
+                    onClick = { onIntent(RegistrationIntent.RegisterManually) },
+                    enabled = !state.busy,
+                    modifier = Modifier.padding(top = 8.dp),
+                ) { Text(stringResource(R.string.reg_register_manually)) }
+            }
 
             if (state.busy) {
                 CircularProgressIndicator(
@@ -157,6 +180,13 @@ private fun RegistrationContent(
         }
     }
 }
+
+private fun addAdminIntent(context: Context): Intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+    .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, PosDeviceAdminReceiver.componentName(context))
+    .putExtra(
+        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+        context.getString(R.string.settings_admin_explanation),
+    )
 
 @Preview
 @Composable
