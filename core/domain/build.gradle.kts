@@ -8,6 +8,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(platform(libs.kotlinx.coroutines.bom))
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(libs.kotlin.testJunit)

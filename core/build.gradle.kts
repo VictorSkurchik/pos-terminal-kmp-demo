@@ -31,6 +31,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            // BOMs govern the versionless Ktor + coroutines artifacts below. Declared per
+            // source set (KMP does not reliably propagate platform() constraints across sets).
+            implementation(project.dependencies.platform(libs.ktor.bom))
+            implementation(project.dependencies.platform(libs.kotlinx.coroutines.bom))
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.clientCore)
@@ -44,13 +48,16 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
+                implementation(project.dependencies.platform(libs.ktor.bom))
                 implementation(libs.ktor.clientOkhttp)
             }
         }
         androidMain.dependencies {
+            implementation(project.dependencies.platform(libs.ktor.bom))
             implementation(libs.ktor.clientOkhttp)
         }
         jsMain.dependencies {
+            implementation(project.dependencies.platform(libs.ktor.bom))
             implementation(libs.ktor.clientJs)
         }
     }

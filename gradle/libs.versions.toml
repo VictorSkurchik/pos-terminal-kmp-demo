@@ -35,9 +35,9 @@ robolectric = "4.14.1"
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-ktor-clientMock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-clientMock = { module = "io.ktor:ktor-client-mock" }
 room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
@@ -56,44 +56,49 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
-# kotlinx
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+# kotlinx — coroutines governed by the coroutines BOM
+kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
+# Ktor — all artifacts governed by the Ktor BOM (io.ktor:ktor-bom)
+ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
 # Ktor client (shared :core)
-ktor-clientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-ktor-clientContentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
-ktor-clientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
-ktor-clientOkhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-clientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
-ktor-serializationJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-clientCore = { module = "io.ktor:ktor-client-core" }
+ktor-clientContentNegotiation = { module = "io.ktor:ktor-client-content-negotiation" }
+ktor-clientLogging = { module = "io.ktor:ktor-client-logging" }
+ktor-clientOkhttp = { module = "io.ktor:ktor-client-okhttp" }
+ktor-clientJs = { module = "io.ktor:ktor-client-js" }
+ktor-serializationJson = { module = "io.ktor:ktor-serialization-kotlinx-json" }
 
 # Ktor server (:server)
-ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
-ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
-ktor-serverContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
-ktor-serverCors = { module = "io.ktor:ktor-server-cors-jvm", version.ref = "ktor" }
-ktor-serverStatusPages = { module = "io.ktor:ktor-server-status-pages-jvm", version.ref = "ktor" }
-ktor-serverCallLogging = { module = "io.ktor:ktor-server-call-logging-jvm", version.ref = "ktor" }
-ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
+ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm" }
+ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm" }
+ktor-serverContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm" }
+ktor-serverCors = { module = "io.ktor:ktor-server-cors-jvm" }
+ktor-serverStatusPages = { module = "io.ktor:ktor-server-status-pages-jvm" }
+ktor-serverCallLogging = { module = "io.ktor:ktor-server-call-logging-jvm" }
+ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm" }
 
 # Room (KMP) + SQLite bundled driver
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
-# Koin DI
-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
-koin-androidxCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
-koin-androidxWorkmanager = { module = "io.insert-koin:koin-androidx-workmanager", version.ref = "koin" }
+# Koin DI — governed by the Koin BOM
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-androidxCompose = { module = "io.insert-koin:koin-androidx-compose" }
+koin-androidxWorkmanager = { module = "io.insert-koin:koin-androidx-workmanager" }
 
 # Navigation (Compose Multiplatform build of Google's Navigation Compose)
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
-# Coil 3 — image loading for product cards / offers
-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
-coil-networkOkhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+# Coil 3 — image loading for product cards / offers (governed by the Coil BOM)
+coil-bom = { module = "io.coil-kt.coil3:coil-bom", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose" }
+coil-networkOkhttp = { module = "io.coil-kt.coil3:coil-network-okhttp" }
 
 # QR enrollment (Android scanner)
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }
