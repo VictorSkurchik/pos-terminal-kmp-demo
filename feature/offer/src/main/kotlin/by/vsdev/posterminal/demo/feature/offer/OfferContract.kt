@@ -1,11 +1,13 @@
 package by.vsdev.posterminal.demo.feature.offer
 
+import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import by.vsdev.posterminal.demo.core.ui.mvi.UiIntent
 import by.vsdev.posterminal.demo.core.ui.mvi.UiSideEffect
 import by.vsdev.posterminal.demo.core.ui.mvi.UiState
+import kotlinx.parcelize.Parcelize
 
 // Brand colors taken from the Comida onboarding designs.
 private val Coral = Color(0xFFFF6B57)
@@ -28,9 +30,15 @@ val sampleOffers = listOf(
     OfferSlide(R.string.offer_headline_3, R.drawable.offer_burger, Yellow, Ink, headlineOnTop = false),
 )
 
-/** MVI contract for the Offer attract loop. */
-data class OfferUiState(val offers: List<OfferSlide> = sampleOffers, val index: Int = 0) : UiState {
-    val current: OfferSlide? get() = offers.getOrNull(index)
+/**
+ * MVI contract for the Offer attract loop. Only the transient [index] is persisted; the slide list
+ * is static ([sampleOffers]), so it is derived rather than saved (avoids parceling Compose [Color]).
+ */
+@Parcelize
+data class OfferUiState(val index: Int = 0) :
+    UiState,
+    Parcelable {
+    val current: OfferSlide? get() = sampleOffers.getOrNull(index)
 }
 
 sealed interface OfferIntent : UiIntent {

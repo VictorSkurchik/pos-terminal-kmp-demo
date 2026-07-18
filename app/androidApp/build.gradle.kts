@@ -5,6 +5,8 @@ plugins {
     id("posterminal.android.compose")
     id("posterminal.quality")
     alias(libs.plugins.kotlinSerialization)
+    // Parcelize ships with the built-in Kotlin plugin (AGP 9); apply it without a version.
+    id("org.jetbrains.kotlin.plugin.parcelize")
 }
 
 // Semantic version — single source of truth in version.properties at the repo root.

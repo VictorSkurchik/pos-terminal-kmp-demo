@@ -1,5 +1,6 @@
 package by.vsdev.posterminal.demo.feature.mdm.enrollment
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import by.vsdev.posterminal.demo.core.ui.mvi.MviViewModel
 import by.vsdev.posterminal.demo.domain.result.AppResult
@@ -21,8 +22,10 @@ class SettingsViewModel(
     private val deviceAdmin: DeviceAdminRepository,
     observeEnrollment: ObserveEnrollmentUseCase,
     observeKiosk: ObserveKioskStateUseCase,
+    savedStateHandle: SavedStateHandle,
 ) : MviViewModel<SettingsUiState, SettingsIntent, SettingsSideEffect>(
     SettingsUiState(adminActive = deviceAdmin.isAdminActive()),
+    savedStateHandle,
 ) {
 
     init {

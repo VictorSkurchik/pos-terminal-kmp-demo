@@ -2,6 +2,7 @@ plugins {
     id("posterminal.android.library")
     id("posterminal.android.compose")
     id("posterminal.quality")
+    id("org.jetbrains.kotlin.plugin.parcelize")
 }
 
 android {

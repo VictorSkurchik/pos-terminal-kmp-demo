@@ -1,11 +1,16 @@
 package by.vsdev.posterminal.demo
 
+import android.os.Parcelable
 import by.vsdev.posterminal.demo.core.ui.mvi.UiIntent
 import by.vsdev.posterminal.demo.core.ui.mvi.UiSideEffect
 import by.vsdev.posterminal.demo.core.ui.mvi.UiState
+import kotlinx.parcelize.Parcelize
 
 /** MVI contract for the app shell (session + navigation). */
-data class AppUiState(val startRoute: AppRoute? = null) : UiState
+@Parcelize
+data class AppUiState(val startRoute: AppRoute? = null) :
+    UiState,
+    Parcelable
 
 sealed interface AppIntent : UiIntent {
     /** Any user touch — resets the kiosk idle timer. */

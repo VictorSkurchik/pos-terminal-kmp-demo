@@ -3,6 +3,7 @@ plugins {
     id("posterminal.android.compose")
     alias(libs.plugins.ksp)
     id("posterminal.quality")
+    id("org.jetbrains.kotlin.plugin.parcelize")
 }
 
 android {

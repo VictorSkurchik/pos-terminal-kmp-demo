@@ -66,8 +66,9 @@ fun OnboardingSlide(slide: OfferSlide, onContinue: () -> Unit, modifier: Modifie
 }
 
 @Composable
-private fun Headline(slide: OfferSlide) {
+private fun Headline(slide: OfferSlide, modifier: Modifier = Modifier) {
     Text(
+        modifier = modifier,
         text = stringResource(slide.headline),
         color = slide.contentColor,
         fontSize = 36.sp,

@@ -1,5 +1,6 @@
 package by.vsdev.posterminal.demo.feature.pos.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import by.vsdev.posterminal.demo.core.ui.mvi.MviViewModel
 import by.vsdev.posterminal.demo.feature.pos.domain.usecase.AddToCartUseCase
@@ -20,7 +21,8 @@ class PosViewModel(
     private val incrementItem: IncrementCartItemUseCase,
     private val decrementItem: DecrementCartItemUseCase,
     private val checkout: CheckoutUseCase,
-) : MviViewModel<PosUiState, PosIntent, PosSideEffect>(PosUiState(products = getProducts())) {
+    savedStateHandle: SavedStateHandle,
+) : MviViewModel<PosUiState, PosIntent, PosSideEffect>(PosUiState(products = getProducts()), savedStateHandle) {
 
     init {
         observeCart()

@@ -1,5 +1,6 @@
 package by.vsdev.posterminal.demo.feature.mdm.enrollment
 
+import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import by.vsdev.posterminal.demo.domain.result.AppResult
 import by.vsdev.posterminal.demo.domain.result.DomainError
@@ -48,7 +49,8 @@ class RegistrationViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = RegistrationViewModel(enrollDevice, enrollWithToken, settings, deviceAdmin)
+    private fun viewModel() =
+        RegistrationViewModel(enrollDevice, enrollWithToken, settings, deviceAdmin, SavedStateHandle())
 
     @Test
     fun `manual enroll success emits Enrolled`() = runTest(dispatcher) {

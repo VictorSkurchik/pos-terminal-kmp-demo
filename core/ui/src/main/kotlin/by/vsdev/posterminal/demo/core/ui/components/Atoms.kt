@@ -69,9 +69,9 @@ fun SectionTitle(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun StatusChip(
     text: String,
+    modifier: Modifier = Modifier,
     container: Color = MaterialTheme.colorScheme.secondaryContainer,
     onContainer: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    modifier: Modifier = Modifier,
 ) {
     Surface(color = container, contentColor = onContainer, shape = MaterialTheme.shapes.small, modifier = modifier) {
         Text(
