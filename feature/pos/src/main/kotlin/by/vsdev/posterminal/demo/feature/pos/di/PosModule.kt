@@ -36,5 +36,5 @@ val posModule: Module = module {
     factory { DecrementCartItemUseCase(get()) }
     factory { CheckoutUseCase(get()) }
 
-    viewModel { PosViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { PosViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }

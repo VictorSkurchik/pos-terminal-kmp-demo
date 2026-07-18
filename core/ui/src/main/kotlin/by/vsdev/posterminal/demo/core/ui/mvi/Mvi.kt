@@ -1,5 +1,6 @@
 package by.vsdev.posterminal.demo.core.ui.mvi
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -28,10 +29,17 @@ interface UiSideEffect
  *
  * Subclasses reduce domain streams and intents into state with [setState] and fire effects with
  * [postSideEffect].
+ *
+ * The whole [UiState] is persisted through [savedStateHandle] so it survives process death: the
+ * initial state is restored from the handle when present, and every [setState] writes the new state
+ * back. This requires each concrete [S] (and its members) to be `Parcelable`.
  */
-abstract class MviViewModel<S : UiState, I : UiIntent, E : UiSideEffect>(initialState: S) : ViewModel() {
+abstract class MviViewModel<S : UiState, I : UiIntent, E : UiSideEffect>(
+    initialState: S,
+    protected val savedStateHandle: SavedStateHandle,
+) : ViewModel() {
 
-    private val _state = MutableStateFlow(initialState)
+    private val _state = MutableStateFlow(savedStateHandle[STATE_KEY] ?: initialState)
     val state: StateFlow<S> = _state.asStateFlow()
 
     private val sideEffects = Channel<E>(Channel.BUFFERED)
@@ -42,9 +50,16 @@ abstract class MviViewModel<S : UiState, I : UiIntent, E : UiSideEffect>(initial
     /** Single point of entry for all user/system actions. */
     abstract fun onIntent(intent: I)
 
-    protected fun setState(reducer: S.() -> S) = _state.update(reducer)
+    protected fun setState(reducer: S.() -> S) {
+        _state.update(reducer)
+        savedStateHandle[STATE_KEY] = _state.value
+    }
 
     protected fun postSideEffect(effect: E) {
         viewModelScope.launch { sideEffects.send(effect) }
+    }
+
+    private companion object {
+        const val STATE_KEY = "mvi_ui_state"
     }
 }

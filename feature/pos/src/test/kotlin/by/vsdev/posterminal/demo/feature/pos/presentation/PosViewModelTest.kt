@@ -1,5 +1,6 @@
 package by.vsdev.posterminal.demo.feature.pos.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import by.vsdev.posterminal.demo.feature.pos.domain.model.CartLine
 import by.vsdev.posterminal.demo.feature.pos.domain.model.Product
@@ -46,6 +47,7 @@ class PosViewModelTest {
         IncrementCartItemUseCase(cart, products),
         DecrementCartItemUseCase(cart),
         CheckoutUseCase(cart),
+        SavedStateHandle(),
     )
 
     @Test

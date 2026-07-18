@@ -11,5 +11,5 @@ import org.koin.dsl.module
 val appModule: Module = module {
     // Cross-cutting MDM policy state (kiosk), owned by the app composition root.
     single<DevicePolicy> { DevicePolicyStore(androidContext()) }
-    viewModel { AppViewModel(get(), get()) }
+    viewModel { AppViewModel(get(), get(), get()) }
 }

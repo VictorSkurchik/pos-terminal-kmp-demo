@@ -6,5 +6,5 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val offerModule: Module = module {
-    viewModel { OfferViewModel() }
+    viewModel { OfferViewModel(get()) }
 }

@@ -33,6 +33,7 @@ fun ConfirmDialog(
     text: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     confirmLabel: String? = null,
     dismissLabel: String? = null,
     danger: Boolean = false,
@@ -40,6 +41,7 @@ fun ConfirmDialog(
     val confirm = confirmLabel ?: stringResource(android.R.string.ok)
     val dismiss = dismissLabel ?: stringResource(android.R.string.cancel)
     AlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = { Text(text) },

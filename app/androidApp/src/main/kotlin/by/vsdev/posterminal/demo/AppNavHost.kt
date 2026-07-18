@@ -24,7 +24,12 @@ import by.vsdev.posterminal.demo.feature.pos.presentation.PosScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AppNavHost(language: String, onToggleLanguage: () -> Unit, appViewModel: AppViewModel = koinViewModel()) {
+fun AppNavHost(
+    language: String,
+    onToggleLanguage: () -> Unit,
+    modifier: Modifier = Modifier,
+    appViewModel: AppViewModel = koinViewModel(),
+) {
     val state by appViewModel.state.collectAsStateWithLifecycle()
 
     val route = state.startRoute ?: run {
@@ -39,7 +44,7 @@ fun AppNavHost(language: String, onToggleLanguage: () -> Unit, appViewModel: App
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             // Observe every touch (Initial pass, without consuming) to reset the idle timer.
             .pointerInput(Unit) {

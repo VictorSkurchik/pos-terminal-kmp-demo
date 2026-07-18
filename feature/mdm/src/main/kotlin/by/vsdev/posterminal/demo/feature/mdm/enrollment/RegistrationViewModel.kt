@@ -1,5 +1,6 @@
 package by.vsdev.posterminal.demo.feature.mdm.enrollment
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import by.vsdev.posterminal.demo.core.ui.mvi.MviViewModel
 import by.vsdev.posterminal.demo.domain.result.AppResult
@@ -16,16 +17,11 @@ class RegistrationViewModel(
     private val enrollWithToken: EnrollWithTokenUseCase,
     private val settings: SettingsRepository,
     private val deviceAdmin: DeviceAdminRepository,
-) : MviViewModel<RegistrationUiState, RegistrationIntent, RegistrationSideEffect>(RegistrationUiState()) {
-
-    /** What to enroll once Device Admin is confirmed active. */
-    private sealed interface Pending {
-        data object Manual : Pending
-
-        data class WithToken(val payload: String) : Pending
-    }
-
-    private var pending: Pending? = null
+    savedStateHandle: SavedStateHandle,
+) : MviViewModel<RegistrationUiState, RegistrationIntent, RegistrationSideEffect>(
+    RegistrationUiState(),
+    savedStateHandle,
+) {
 
     init {
         viewModelScope.launch {
@@ -49,7 +45,7 @@ class RegistrationViewModel(
      * only complete enrollment once it is active; otherwise we show the admin gate and defer.
      */
     private fun requestEnrollment(request: Pending) {
-        pending = request
+        setState { copy(pending = request) }
         if (deviceAdmin.isAdminActive()) {
             completeEnrollment()
         } else {
@@ -64,7 +60,7 @@ class RegistrationViewModel(
     }
 
     private fun completeEnrollment() {
-        val request = pending ?: return
+        val request = currentState.pending ?: return
         runExclusively {
             when (request) {
                 Pending.Manual -> when (val result = enrollDevice(currentState.name)) {
@@ -85,8 +81,7 @@ class RegistrationViewModel(
 
     /** On a failed completion, drop back to the registration options so the user can retry. */
     private fun failBack(emit: () -> Unit) {
-        pending = null
-        setState { copy(awaitingAdmin = false) }
+        setState { copy(awaitingAdmin = false, pending = null) }
         emit()
     }
 

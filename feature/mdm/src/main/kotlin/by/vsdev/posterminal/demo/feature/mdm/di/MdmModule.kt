@@ -73,7 +73,7 @@ val mdmModule: Module = module {
     factory { SyncDeviceUseCase(get(), get()) }
 
     // Presentation + infra
-    viewModel { RegistrationViewModel(get(), get(), get(), get()) }
-    viewModel { SettingsViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { RegistrationViewModel(get(), get(), get(), get(), get()) }
+    viewModel { SettingsViewModel(get(), get(), get(), get(), get(), get(), get()) }
     worker { MdmSyncWorker(get(), get(), get(), get()) }
 }

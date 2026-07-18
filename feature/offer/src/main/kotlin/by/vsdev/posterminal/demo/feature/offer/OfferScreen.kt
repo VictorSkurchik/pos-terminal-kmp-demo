@@ -78,7 +78,7 @@ private fun OfferContent(state: OfferUiState, onIntent: (OfferIntent) -> Unit, m
                 .padding(horizontal = 12.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            state.offers.forEachIndexed { i, _ ->
+            sampleOffers.forEachIndexed { i, _ ->
                 StoryProgressBar(
                     progress = when {
                         i < state.index -> 1f

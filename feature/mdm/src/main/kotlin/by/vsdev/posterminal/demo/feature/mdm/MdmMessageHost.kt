@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import org.koin.compose.koinInject
 
@@ -18,7 +19,7 @@ import org.koin.compose.koinInject
  * Placed at the UI root.
  */
 @Composable
-fun MdmMessageHost(controller: MdmController = koinInject()) {
+fun MdmMessageHost(modifier: Modifier = Modifier, controller: MdmController = koinInject()) {
     var current by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
@@ -27,6 +28,7 @@ fun MdmMessageHost(controller: MdmController = koinInject()) {
 
     current?.let { text ->
         AlertDialog(
+            modifier = modifier,
             onDismissRequest = { current = null },
             confirmButton = {
                 TextButton(onClick = { current = null }) { Text(stringResource(R.string.msg_ok)) }

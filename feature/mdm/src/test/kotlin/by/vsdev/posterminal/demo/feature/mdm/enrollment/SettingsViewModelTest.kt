@@ -1,5 +1,6 @@
 package by.vsdev.posterminal.demo.feature.mdm.enrollment
 
+import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import by.vsdev.posterminal.demo.domain.result.AppResult
 import by.vsdev.posterminal.demo.domain.result.DomainError
@@ -50,7 +51,8 @@ class SettingsViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = SettingsViewModel(syncNow, logout, settings, deviceAdmin, observeEnrollment, observeKiosk)
+    private fun viewModel() =
+        SettingsViewModel(syncNow, logout, settings, deviceAdmin, observeEnrollment, observeKiosk, SavedStateHandle())
 
     @Test
     fun `SyncNow emits SyncRequested`() = runTest(dispatcher) {
